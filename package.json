@@ -1,0 +1,15 @@
+{
+  "name": "payload-service-js",
+  "version": "0.0.1",
+  "description": "Payload service will get messages and extracts payloads from it. Then save payloads to special 'payloads' collection in MongoDB.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yury Prokashev",
+  "license": "ISC",
+  "dependencies": {
+    "kafka-node": "^0.5.4",
+    "mongoose": "^4.5.8"
+  }
+}
