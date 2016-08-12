@@ -2,38 +2,6 @@
  * Created by py on 11/08/16.
  */
 
-// gets
-// - Message
-// -- _id
-// -- occuredAt
-// -- sourceId
-// -- storedAt
-// -- payload
-// extracts
-// - Payload
-// -- _id
-// -- amount
-// -- description
-// -- labels
-// --dayCode
-// parses
-// - Payload
-// extracts
-// - Type
-// stores to 'payloads' collection
-// - Payload
-// -- _id
-// -- messageId
-// -- sourceId
-// -- amount
-// -- description
-// -- labels
-// -- dayCode
-// -- storedAt
-// -- type
-// puts to "payload::saved"
-// - Payload
-
 var PayloadService;
 
 var PayloadModel = require('./PayloadModel');
