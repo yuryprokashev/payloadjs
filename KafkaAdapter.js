@@ -34,7 +34,11 @@ KafkaAdapter = function () {
     // return: void
     var send = function (topic, message) {
         var payload = [];
-        payload.push({topic: topic, messages: message.message});
+        payload.push(
+            {
+                topic: topic,
+                messages: JSON.stringify(message.message)
+            });
         self.producer.send(payload, function (err, data) {
             if(err) {
                 // console.log("error");

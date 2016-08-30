@@ -34,6 +34,8 @@ PayloadService = function (m) {
         var extract = function(ctx) {
             ctx.originalMsg = JSON.parse(ctx.msg.value);
             ctx.originalPayload = JSON.parse(ctx.originalMsg.payload);
+            console.log('EXTRACTED');
+            console.log(ctx.originalPayload);
         };
 
         var map = function(ctx){
@@ -49,15 +51,21 @@ PayloadService = function (m) {
             ctx.finalPayload.campaignId = ctx.originalMsg.campaignId || 0;
             ctx.finalPayload.userId = ctx.originalMsg.userId;
             ctx.finalPayload.messageId = ctx.originalMsg._id;
+            console.log('MAPPED');
+            console.log(ctx.finalPayload);
         };
 
         var store = function (ctx, callback) {
             ctx.finalPayload.storedAt = MyDates.now();
-            ctx.m.create(ctx.finalPayload, function (err, result) {
+            var query = {
+                "_id": ctx.finalPayload._id
+            };
+            ctx.m.findOneAndUpdate(query, ctx.finalPayload, {upsert: true}, function (err, result) {
                 if(err){
                     Bus.send('error-new', err);
+                    console.log(err);
                 }
-                if(result) {
+                else if(result) {
                     callback(result);
                 }
             });
