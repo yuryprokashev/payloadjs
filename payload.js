@@ -51,6 +51,7 @@ PayloadService = function (m) {
             ctx.finalPayload.campaignId = ctx.originalMsg.campaignId || 0;
             ctx.finalPayload.userId = ctx.originalMsg.userId;
             ctx.finalPayload.messageId = ctx.originalMsg._id;
+            ctx.finalPayload.userToken = ctx.originalMsg.userToken;
             console.log('MAPPED');
             console.log(ctx.finalPayload);
         };
@@ -60,7 +61,7 @@ PayloadService = function (m) {
             var query = {
                 "_id": ctx.finalPayload._id
             };
-            ctx.m.findOneAndUpdate(query, ctx.finalPayload, {upsert: true}, function (err, result) {
+            ctx.m.findOneAndUpdate(query, ctx.finalPayload, {new: true, upsert: true}, function (err, result) {
                 if(err){
                     Bus.send('error-new', err);
                     console.log(err);

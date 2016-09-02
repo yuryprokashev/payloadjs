@@ -33,7 +33,9 @@ var payloadSchema = new mongoose.Schema( {
 
     userId: {type: String, required: true}, // -> indicator of a User, generated the Message, received from client in Message header
 
-    messageId: {type: String, required: true} // indicator of Message that brought the Payload
+    messageId: {type: String, required: true}, // indicator of Message that brought the Payload
+
+    userToken: {type: String, required: true} // -> userToken - unique token sent to identify where to send reply on Message
 
 });
 
