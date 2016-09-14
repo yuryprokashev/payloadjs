@@ -4,12 +4,18 @@
   "description": "Payload service will get messages and extracts payloads from it. Then save payloads to special 'payloads' collection in MongoDB.",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "babel-watch src/payload.js"
   },
   "author": "Yury Prokashev",
   "license": "ISC",
   "dependencies": {
     "kafka-node": "^0.5.4",
     "mongoose": "^4.5.8"
+  },
+  "devDependencies": {
+    "babel-core": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-watch": "^2.0.2"
   }
 }

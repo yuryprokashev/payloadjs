@@ -13,9 +13,14 @@ KafkaAdapter = function () {
     var kafkaClient = new kafka.Client('localhost:2181/', 'kafka-node-client');
 
     var setUpProducer = function (kafkaClient) {
-        self.producer = new kafka.Producer(kafkaClient);
+        self.producer = new kafka.Producer(kafkaClient, {partitionerType: 2});
         self.producer.on('ready', function () {
             console.log('NodeJS Kafka Producer Ready...');
+            // self
+            //     .producer
+            //     .createTopics([{topic:'payload-response', partition: 2}], true, function (err, data) {
+            //         console.log(data);
+            //     });
         });
     };
 
@@ -45,8 +50,8 @@ KafkaAdapter = function () {
                 // console.log(err);
             }
             if(data){
-                // console.log("data");
-                // console.log(data);
+                console.log("data sent");
+                console.log(data);
             }
         })
     };
@@ -55,7 +60,15 @@ KafkaAdapter = function () {
     // param: Function callback - the function to be executed after message will arrive
     // function: tell Kafka that you want to get messages for this topic
     var subscribe = function (topic, callback) {
-        self.consumer.addTopics([topic], function (err, added) {
+        var topics = [
+            {topic:topic, partition:0},
+            {topic:topic, partition:1},
+            {topic:topic, partition:2},
+            {topic:topic, partition:3},
+            {topic:topic, partition:4},
+            {topic:topic, partition:5}
+        ];
+        self.consumer.addTopics(topics, function (err, added) {
             if(err){
                 // console.log("error");
                 // console.log(err);
@@ -66,7 +79,10 @@ KafkaAdapter = function () {
             }
         });
         self.consumer.on('message', function (message) {
-            callback(message);
+            console.log(`message arrived ${message}`);
+            if(message.topic === topic) {
+                callback(message);
+            }
         });
     };
 
@@ -79,6 +95,6 @@ KafkaAdapter = function () {
         send: send,
         subscribe: subscribe
     }
-}();
+};
 
 module.exports = KafkaAdapter;

@@ -6,6 +6,6 @@ var mongoose = require('mongoose');
 
 mongoose.connect("mongodb://localhost:27017/pfin");
 
-var PayloadModel = mongoose.model('Payload', require('./payload.schema'), 'payloads');
+var PayloadModel = mongoose.model('Payload', require('./payload.schema.js'), 'payloads');
 
 module.exports = PayloadModel;
