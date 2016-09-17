@@ -17,7 +17,9 @@ PayloadService = function (m, b) {
     // function: create a separate context to handle incoming message
     // return: Object context
     var init= function (msg, model) {
-        var ctx = {};
+        var ctx = {
+            originalMsg: {}
+        };
         ctx.m = model;
         ctx.msg = msg;
         ctx.occuredAt = MyDates.now();
@@ -32,7 +34,9 @@ PayloadService = function (m, b) {
     };
 
     var extractPayload = function (ctx) {
-        ctx.originalPayload = JSON.parse(ctx.originalMsg.payload);
+        ctx.originalPayload = JSON.parse(ctx.originalMsg.responsePayload.payload);
+        // ctx.originalPayload = ctx.originalMsg.responsePayload.payload;
+
         console.log('EXTRACTED FROM PAYLOAD');
         console.log(ctx.originalPayload);
     };
@@ -44,12 +48,9 @@ PayloadService = function (m, b) {
 
     // param: BusMessage msg - message received over Bus.
     // param: PayloadModel m - the Model, where 'payload' will be saved
-    // function: handle the incoming 'message-new' Message and send result to Bud, 'payload-new' topic
+    // function: handle the incoming 'message-done' Message and send result to Bus, 'payload-done' topic
     // return: void
-    var handleMessage = function (msg) {
-
-        console.log('handleMessage called');
-        console.log(msg);
+    var handleMessageDone = function (msg) {
 
         var map = function(ctx){
             ctx.finalPayload = {};
@@ -60,11 +61,11 @@ PayloadService = function (m, b) {
             ctx.finalPayload.description = ctx.originalPayload.description || '';
             ctx.finalPayload.labels = ctx.originalPayload.labels;
             ctx.finalPayload.occuredAt = ctx.occuredAt;
-            ctx.finalPayload.sourceId = ctx.originalMsg.sourceId;
-            ctx.finalPayload.campaignId = ctx.originalMsg.campaignId || 0;
-            ctx.finalPayload.userId = ctx.originalMsg.userId;
-            ctx.finalPayload.messageId = ctx.originalMsg._id;
-            ctx.finalPayload.userToken = ctx.originalMsg.userToken;
+            ctx.finalPayload.sourceId = ctx.originalMsg.responsePayload.sourceId;
+            ctx.finalPayload.campaignId = ctx.originalMsg.responsePayload.campaignId || 0;
+            ctx.finalPayload.userId = ctx.originalMsg.responsePayload.userId;
+            ctx.finalPayload.messageId = ctx.originalMsg.responsePayload._id;
+            ctx.finalPayload.userToken = ctx.originalMsg.responsePayload.userToken;
             console.log('MAPPED');
             console.log(ctx.finalPayload);
         };
@@ -76,7 +77,7 @@ PayloadService = function (m, b) {
             };
             ctx.m.findOneAndUpdate(query, ctx.finalPayload, {new: true, upsert: true}, function (err, result) {
                 if(err){
-                    Bus.send('error-new', err);
+                    b.send('error-new', err);
                     console.log(err);
                 }
                 else if(result) {
@@ -86,9 +87,10 @@ PayloadService = function (m, b) {
         };
 
         var notify = function (result) {
-            b.send('payload-new', result);
+            b.send('payload-done', result);
         };
 
+        console.log('handleMessage called');
         var ctx = init(msg, m);
         extractMessage(ctx);
         extractPayload(ctx);
@@ -133,7 +135,7 @@ PayloadService = function (m, b) {
         get(ctx);
     };
 
-    b.subscribe('message-new', handleMessage);
+    b.subscribe('message-done', handleMessageDone);
     b.subscribe('payload-request', handlePayloadRequest);
 };
 
