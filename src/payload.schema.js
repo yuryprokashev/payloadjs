@@ -14,6 +14,8 @@ var payloadSchema = new mongoose.Schema( {
 
     dayCode: {type: String, required: false}, // -> received from Client in payload.
 
+    monthCode:{type: String, required: true}, // received from Client in payload.
+
     description: {type: String, required: false}, // -> received from Client in payload.
 
     labels: {
@@ -33,10 +35,11 @@ var payloadSchema = new mongoose.Schema( {
 
     userId: {type: String, required: true}, // -> indicator of a User, generated the Message, received from client in Message header
 
-    messageId: {type: String, required: true}, // indicator of Message that brought the Payload
+    messageId: {type: String, required: false}, // indicator of Message that brought the Payload
 
-    userToken: {type: String, required: true} // -> userToken - unique token sent to identify where to send reply on Message
+    userToken: {type: String, required: false}, // -> userToken - unique token sent to identify where to send reply on Message
 
+    commandId: {type: String, required: false} // -> command Id - unique id, used to identify command, sent from client
 });
 
 payloadSchema.set( 'toObject', { virtuals: true });
