@@ -7,6 +7,7 @@
 var PayloadService;
 
 var MyDates = require('./MyDates');
+const MonthData = require('./MonthData');
 
 
 // param: PayloadModel m - model of payload, that PayloadService will use to store payloads in Mongo DB
@@ -15,6 +16,10 @@ var MyDates = require('./MyDates');
 // and then send the message to Kafka
 // return: PayloadService api
 PayloadService = function (m, b) {
+
+    function logError(err){
+        console.log(`Error: ${JSON.stringify(err)}`);
+    }
 
     // param: BusMessage msg
     // function: create a separate context to handle incoming message
@@ -137,6 +142,9 @@ PayloadService = function (m, b) {
 
         var get = function (ctx) {
             // console.log(`constructed { user:  ${ctx.query.user}, type: ${ctx.query.type} }`);
+            ctx.query['labels.isDeleted'] = false;
+            // ctx.query.labels = {isDeleted: false};
+            // console.log(`GET query is ${JSON.stringify(ctx.query)}`);
             ctx.m.find(ctx.query)
                 .sort(ctx.sortOrder)
                 .exec(function (err, data) {
@@ -218,9 +226,7 @@ PayloadService = function (m, b) {
             ctx.finalPayload.responseErrors = [];
             b.send('copy-payload-response',ctx.finalPayload);
         }
-        function logError(err){
-            console.log(err);
-        }
+
         var ctx = init(req, m);
         extractMessage(ctx);
         setRequestId(ctx);
@@ -235,9 +241,103 @@ PayloadService = function (m, b) {
             );
     };
 
+    var handleClearPayloadRequest = function(req){
+        console.log('handleClearPayloadRequest');
+        var ctx = init(req, m);
+        extractMessage(ctx);
+        setRequestId(ctx);
+        function replyClear(result){
+            console.log(`Success ${JSON.stringify(result)}`);
+            ctx.finalPayload.responsePayload = result;
+            ctx.finalPayload.responseErrors = [];
+            b.send('clear-payload-response',ctx.finalPayload);
+        }
+        function findTargetMonthData(ctx){
+            ctx.query = {};
+            ctx.query.type = ctx.originalMsg.payloadType || 1;
+            ctx.query.monthCode = ctx.originalMsg.targetPeriod;
+            ctx.query.userId = ctx.originalMsg.user;
+
+            return new Promise(function(resolve, reject){
+                ctx.m.update(ctx.query, {"labels.isDeleted": true}, {multi:true})
+                    .exec(
+                        function(err, data){
+                            if(err){reject(err);}
+                            resolve(data);
+                        }
+                    );
+            });
+        }
+
+        findTargetMonthData(ctx)
+            .then(
+                replyClear,
+                logError
+            )
+    };
+    
+    var handleGetMonthDataRequest = function(req){
+        console.log('handleGetMonthDataRequest');
+        var ctx = init(req, m);
+        extractMessage(ctx);
+        setRequestId(ctx);
+
+        function aggregateMonthData(ctx) {
+            let q = ctx.originalMsg;
+            ctx.query = [
+                {$match: {userId: q.user, "labels.isDeleted": false}},
+                {$project: {_id:1, amount:1, monthCode: 1, isPlanned: {$cond:{if:{$eq:["$labels.isPlan",true]}, then:"plan", else:"fact"}}}},
+                {$match: {monthCode: q.targetPeriod}},
+                {$project: { _id:1, amount:1,isPlanned: "$isPlanned"}},
+                {$group: {_id: "$isPlanned", total: {$sum: "$amount"}}}
+            ];
+
+            return new Promise(function (resolve, reject){
+                ctx.m.aggregate(ctx.query)
+                    .exec(
+                        function(err, data){
+                            if(err){
+                                console.log(err);
+                                reject(err);
+                            }
+                            console.log(`data aggregated is ${JSON.stringify(data)}`);
+                            var monthData;
+                            function findPlan(item) {
+                                return item._id === 'plan';
+                            }
+
+                            function findFact(item) {
+                                return item._id === 'fact';
+                            }
+                            var fact = data.find(findFact) || {_id: 'fact', total: 0};
+                            var plan = data.find(findPlan) || {_id: 'plan', total: 0};
+                            monthData = new MonthData(fact.total, plan.total);
+
+                            resolve(monthData);
+                        }
+                    );
+            });
+        }
+        
+        function replyMonthData(result){
+            console.log(`MonthData Success: ${JSON.stringify(result)}`);
+            ctx.finalPayload.responsePayload = result;
+            ctx.finalPayload.responseErrors = [];
+            b.send('get-month-data-response',ctx.finalPayload);
+        }
+
+        aggregateMonthData(ctx)
+            .then(
+                replyMonthData,
+                logError
+            )
+    };
+
     b.subscribe('message-done', handleMessageDone);
     b.subscribe('payload-request', handlePayloadRequest);
     b.subscribe('copy-payload-request', handleCopyPayloadRequest);
+    b.subscribe('clear-payload-request', handleClearPayloadRequest);
+    b.subscribe('get-month-data-request', handleGetMonthDataRequest);
 };
 
 module.exports = PayloadService;
