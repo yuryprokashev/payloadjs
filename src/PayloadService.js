@@ -173,6 +173,7 @@ PayloadService = function (m, b) {
             ctx.query.type = ctx.originalMsg.payloadType || 1;
             ctx.query.monthCode = ctx.originalMsg.sourcePeriod;
             ctx.query.userId = ctx.originalMsg.user;
+            ctx.query['labels.isDeleted'] = false;
 
             ctx.foundPayloads = [];
 
