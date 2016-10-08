@@ -35,18 +35,18 @@ PayloadService = function (m, b) {
     };
 
     var extractMessage = function (ctx) {
-        console.log(ctx.msg);
+        // console.log(ctx.msg);
         ctx.originalMsg = JSON.parse(ctx.msg.value);
-        console.log('EXTRACTED FROM MESSAGE');
-        console.log(ctx.originalMsg);
+        // console.log('EXTRACTED FROM MESSAGE');
+        // console.log(ctx.originalMsg);
     };
 
     var extractPayload = function (ctx) {
         ctx.originalPayload = JSON.parse(ctx.originalMsg.responsePayload.payload);
         // ctx.originalPayload = ctx.originalMsg.responsePayload.payload;
 
-        console.log('EXTRACTED FROM PAYLOAD');
-        console.log(ctx.originalPayload);
+        // console.log('EXTRACTED FROM PAYLOAD');
+        // console.log(ctx.originalPayload);
     };
 
     var setRequestId = function(ctx) {
@@ -79,8 +79,8 @@ PayloadService = function (m, b) {
             ctx.finalPayload.messageId = ctx.originalMsg.responsePayload._id;
             ctx.finalPayload.userToken = ctx.originalMsg.responsePayload.userToken;
             ctx.finalPayload.commandId = ctx.originalMsg.responsePayload.commandId;
-            console.log('MAPPED');
-            console.log(ctx.finalPayload);
+            // console.log('MAPPED');
+            // console.log(ctx.finalPayload);
         };
 
         var store = function (ctx, callback) {
@@ -103,7 +103,7 @@ PayloadService = function (m, b) {
             b.send('payload-done', result);
         };
 
-        console.log('handleMessage called');
+        // console.log('handleMessage called');
         var ctx = init(msg, m);
         extractMessage(ctx);
         extractPayload(ctx);
@@ -113,8 +113,8 @@ PayloadService = function (m, b) {
 
     var handlePayloadRequest = function (req) {
 
-        console.log('handlePayloadRequest called');
-        console.log(req);
+        // console.log('handlePayloadRequest called');
+        // console.log(req);
 
         function isGetDay(originalMessage) {
             return originalMessage.dayCode !== undefined;
@@ -166,7 +166,7 @@ PayloadService = function (m, b) {
     };
 
     var handleCopyPayloadRequest = function(req) {
-        console.log('handleCopyPayloadRequest called');
+        // console.log('handleCopyPayloadRequest called');
         
         function constructQueryAndFindData(ctx){
             ctx.query = {};
@@ -189,7 +189,7 @@ PayloadService = function (m, b) {
 
         }
         function copy(data) {
-            console.log('START COPY');
+            // console.log('START COPY');
             function newDayCode(oldDayCode, targetMonth){
                 if(oldDayCode.length === 8){
                     let day = oldDayCode.substring(6,8);
@@ -243,12 +243,12 @@ PayloadService = function (m, b) {
     };
 
     var handleClearPayloadRequest = function(req){
-        console.log('handleClearPayloadRequest');
+        // console.log('handleClearPayloadRequest');
         var ctx = init(req, m);
         extractMessage(ctx);
         setRequestId(ctx);
         function replyClear(result){
-            console.log(`Success ${JSON.stringify(result)}`);
+            // console.log(`Success ${JSON.stringify(result)}`);
             ctx.finalPayload.responsePayload = result;
             ctx.finalPayload.responseErrors = [];
             b.send('clear-payload-response',ctx.finalPayload);
@@ -278,7 +278,7 @@ PayloadService = function (m, b) {
     };
     
     var handleGetMonthDataRequest = function(req){
-        console.log('handleGetMonthDataRequest');
+        // console.log('handleGetMonthDataRequest');
         var ctx = init(req, m);
         extractMessage(ctx);
         setRequestId(ctx);
@@ -301,7 +301,7 @@ PayloadService = function (m, b) {
                                 console.log(err);
                                 reject(err);
                             }
-                            console.log(`data aggregated is ${JSON.stringify(data)}`);
+                            // console.log(`data aggregated is ${JSON.stringify(data)}`);
                             var monthData;
                             function findPlan(item) {
                                 return item._id === 'plan';
@@ -321,7 +321,7 @@ PayloadService = function (m, b) {
         }
         
         function replyMonthData(result){
-            console.log(`MonthData Success: ${JSON.stringify(result)}`);
+            // console.log(`MonthData Success: ${JSON.stringify(result)}`);
             ctx.finalPayload.responsePayload = result;
             ctx.finalPayload.responseErrors = [];
             b.send('get-month-data-response',ctx.finalPayload);

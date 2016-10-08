@@ -10,11 +10,11 @@ BusService = (function (adapter) {
 
     return {
         send: function(topic, message) {
-            console.log(`bus sending message ${message}`);
+            // console.log(`bus sending message ${message}`);
             adapter.send(topic, {message: message});
         },
         subscribe: function(topic, callback) {
-            console.log(`bus gets  and call ${topic}`);
+            // console.log(`bus gets  and call ${topic}`);
             adapter.subscribe(topic, callback);
         }
     }

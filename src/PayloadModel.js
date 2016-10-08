@@ -4,7 +4,7 @@
 
 var mongoose = require('mongoose');
 
-mongoose.connect("mongodb://localhost:27017/pfin");
+mongoose.connect(`${process.env.DB_PAYLOADS}:27017/pfin`);
 
 var PayloadModel = mongoose.model('Payload', require('./payload.schema.js'), 'payloads');
 

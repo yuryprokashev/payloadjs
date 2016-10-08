@@ -10,12 +10,12 @@ KafkaAdapter = function () {
     var self = this;
 
     var kafka = require('kafka-node');
-    var kafkaClient = new kafka.Client('localhost:2181/', 'kafka-node-client');
+    var kafkaClient = new kafka.Client(`${process.env.KAFKA_HOST}:2181/`, 'kafka-node-client');
 
     var setUpProducer = function (kafkaClient) {
         self.producer = new kafka.Producer(kafkaClient, {partitionerType: 2});
         self.producer.on('ready', function () {
-            console.log('NodeJS Kafka Producer Ready...');
+            // console.log('NodeJS Kafka Producer Ready...');
             // self
             //     .producer
             //     .createTopics([{topic:'payload-response', partition: 2}], true, function (err, data) {
@@ -50,8 +50,8 @@ KafkaAdapter = function () {
                 // console.log(err);
             }
             if(data){
-                console.log("data sent");
-                console.log(data);
+                // console.log("data sent");
+                // console.log(data);
             }
         })
     };
@@ -79,7 +79,7 @@ KafkaAdapter = function () {
             }
         });
         self.consumer.on('message', function (message) {
-            console.log(`message arrived ${message}`);
+            // console.log(`message arrived ${message}`);
             if(message.topic === topic) {
                 callback(message);
             }
