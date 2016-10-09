@@ -15,13 +15,16 @@ KafkaAdapter = function () {
     var setUpProducer = function (kafkaClient) {
         self.producer = new kafka.Producer(kafkaClient, {partitionerType: 2});
         self.producer.on('ready', function () {
-            // console.log('NodeJS Kafka Producer Ready...');
+            console.log('PayloadJS: Kafka Producer Ready...');
             // self
             //     .producer
             //     .createTopics([{topic:'payload-response', partition: 2}], true, function (err, data) {
             //         console.log(data);
             //     });
         });
+        self.producer.on('error', function (err) {
+            throw new Error('Kafka disconnected');
+        })
     };
 
     var setUpConsumer = function(kafkaClient){
