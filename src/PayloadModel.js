@@ -4,7 +4,10 @@
 
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://54.229.108.38:27017/pfin');
+const MONGO_HOST = "mongodb://localhost:27017/pfin";
+// const MONGO_HOST = "mongodb://54.229.108.38:27017/pfin";
+
+mongoose.connect(MONGO_HOST);
 
 var PayloadModel = mongoose.model('Payload', require('./payload.schema.js'), 'payloads');
 

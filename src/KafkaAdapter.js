@@ -5,12 +5,15 @@
 
 var KafkaAdapter;
 
+// const KAFKA_HOST = "ec2-54-171-231-214.eu-west-1.compute.amazonaws.com";
+const KAFKA_HOST = "localhost";
+
 KafkaAdapter = function () {
 
     var self = this;
 
     var kafka = require('kafka-node');
-    var kafkaClient = new kafka.Client(`ec2-54-171-231-214.eu-west-1.compute.amazonaws.com:2181/`, 'kafka-node-client');
+    var kafkaClient = new kafka.Client(`${KAFKA_HOST}:2181/`, 'kafka-node-client');
 
     var setUpProducer = function (kafkaClient) {
         self.producer = new kafka.Producer(kafkaClient, {partitionerType: 2});
