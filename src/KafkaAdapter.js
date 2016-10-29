@@ -5,8 +5,8 @@
 
 var KafkaAdapter;
 
-// const KAFKA_HOST = "ec2-54-171-231-214.eu-west-1.compute.amazonaws.com";
-const KAFKA_HOST = "localhost";
+const KAFKA_HOST = "54.154.226.55";
+// const KAFKA_HOST = "54.154.211.165"; // TEST
 
 KafkaAdapter = function () {
 
