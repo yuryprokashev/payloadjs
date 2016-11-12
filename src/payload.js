@@ -2,9 +2,9 @@
  * Created by py on 03/09/16.
  */
 
-var PayloadService = require('./PayloadService');
-var PayloadModel = require('./PayloadModel');
+var PayloadService = require('./PayloadService2');
+const parseProcessArgs = require('./parseProcessArgs');
 
-var Bus = require('./BusService');
+var args = parseProcessArgs();
 
-var app = new PayloadService(PayloadModel, Bus);
+var app = new PayloadService(args[0].isProd);
