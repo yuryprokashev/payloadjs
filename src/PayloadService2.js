@@ -124,19 +124,23 @@ class PayloadService extends EventEmitter{
                 };
 
                 var store = function (ctx, callback) {
-                    ctx.finalPayload.storedAt = MyDates.now();
-                    var query = {
-                        "_id": ctx.finalPayload._id
-                    };
-                    ctx.m.findOneAndUpdate(query, ctx.finalPayload, {new: true, upsert: true}, function (err, result) {
-                        if(err){
-                            b.send('error-new', err);
-                            console.log(err);
-                        }
-                        else if(result) {
-                            callback(result);
-                        }
-                    });
+                    if(ctx.finalPayload !== undefined) {
+                        ctx.finalPayload.storedAt = MyDates.now();
+                        var query = {
+                            "_id": ctx.finalPayload._id
+                        };
+                        ctx.m.findOneAndUpdate(query, ctx.finalPayload, {new: true, upsert: true}, function (err, result) {
+                            if(err){
+                                console.log(err);
+                            }
+                            else if(result) {
+                                callback(result);
+                            }
+                        });
+                    }
+                    else {
+                        return _this.bus.send('payload-response', {error: `error no original message`});
+                    }
                 };
 
                 var notify = function (result) {
