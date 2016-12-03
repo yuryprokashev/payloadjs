@@ -101,23 +101,26 @@ class PayloadService extends EventEmitter{
             function handleMessageDone(msg) {
 
                 var map = function(ctx){
-                    ctx.finalPayload = {};
-                    ctx.finalPayload._id = ctx.originalPayload.id || guid();
-                    ctx.finalPayload.type = 1;
-                    ctx.finalPayload.amount = ctx.originalPayload.amount;
-                    ctx.finalPayload.dayCode = ctx.originalPayload.dayCode;
-                    ctx.finalPayload.monthCode = ctx.originalPayload.monthCode;
-                    ctx.finalPayload.description = ctx.originalPayload.description || '';
-                    ctx.finalPayload.labels = ctx.originalPayload.labels;
-                    ctx.finalPayload.occuredAt = ctx.occuredAt;
-                    ctx.finalPayload.sourceId = ctx.originalMsg.responsePayload.sourceId;
-                    ctx.finalPayload.campaignId = ctx.originalMsg.responsePayload.campaignId || 0;
-                    ctx.finalPayload.userId = ctx.originalMsg.responsePayload.userId;
-                    ctx.finalPayload.messageId = ctx.originalMsg.responsePayload._id;
-                    ctx.finalPayload.userToken = ctx.originalMsg.responsePayload.userToken;
-                    ctx.finalPayload.commandId = ctx.originalMsg.responsePayload.commandId;
-                    // console.log('MAPPED');
-                    // console.log(ctx.finalPayload);
+                    if(ctx.originalPayload !== undefined) {
+                        ctx.finalPayload = {};
+                        ctx.finalPayload._id = ctx.originalPayload.id || guid();
+                        ctx.finalPayload.type = 1;
+                        ctx.finalPayload.amount = ctx.originalPayload.amount;
+                        ctx.finalPayload.dayCode = ctx.originalPayload.dayCode;
+                        ctx.finalPayload.monthCode = ctx.originalPayload.monthCode;
+                        ctx.finalPayload.description = ctx.originalPayload.description || '';
+                        ctx.finalPayload.labels = ctx.originalPayload.labels;
+                        ctx.finalPayload.occuredAt = ctx.occuredAt;
+                        ctx.finalPayload.sourceId = ctx.originalMsg.responsePayload.sourceId;
+                        ctx.finalPayload.campaignId = ctx.originalMsg.responsePayload.campaignId || 0;
+                        ctx.finalPayload.userId = ctx.originalMsg.responsePayload.userId;
+                        ctx.finalPayload.messageId = ctx.originalMsg.responsePayload._id;
+                        ctx.finalPayload.userToken = ctx.originalMsg.responsePayload.userToken;
+                        ctx.finalPayload.commandId = ctx.originalMsg.responsePayload.commandId;
+                    }
+                    else {
+                        return _this.bus.send('payload-response', {error: `error ${err}`});
+                    }
                 };
 
                 var store = function (ctx, callback) {
