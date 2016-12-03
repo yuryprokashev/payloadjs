@@ -85,7 +85,7 @@ class PayloadService extends EventEmitter{
                     ctx.originalPayload = JSON.parse(ctx.originalMsg.responsePayload.payload);
                 }
                 catch (err) {
-                    _this.bus.send('payload-response', {error: `error ${err}`});
+                    return _this.bus.send('payload-response', {error: `error ${err}`});
                 }
             };
 
@@ -188,7 +188,7 @@ class PayloadService extends EventEmitter{
                             }
                             ctx.finalPayload.payload = data;
                             // console.log(data);
-                            _this.bus.send('payload-response', ctx.finalPayload);
+                           _this.bus.send('payload-response', ctx.finalPayload);
                         });
                 };
 
