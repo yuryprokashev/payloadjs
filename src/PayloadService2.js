@@ -119,7 +119,7 @@ class PayloadService extends EventEmitter{
                         ctx.finalPayload.commandId = ctx.originalMsg.responsePayload.commandId;
                     }
                     else {
-                        return _this.bus.send('payload-response', {error: `error ${err}`});
+                        return _this.bus.send('payload-response', {error: `error no original message`});
                     }
                 };
 
