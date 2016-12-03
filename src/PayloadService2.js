@@ -76,10 +76,7 @@ class PayloadService extends EventEmitter{
             };
 
             var extractMessage = function (ctx) {
-                // console.log(ctx.msg);
                 ctx.originalMsg = JSON.parse(ctx.msg.value);
-                // console.log('EXTRACTED FROM MESSAGE');
-                // console.log(ctx.originalMsg);
             };
 
             var extractPayload = function (ctx) {
@@ -88,13 +85,8 @@ class PayloadService extends EventEmitter{
                     ctx.originalPayload = JSON.parse(ctx.originalMsg.responsePayload.payload);
                 }
                 catch (err) {
-                    throw new Error(`fuck original message! ${JSON.stringify(err)}`);
+                    _this.bus.send('payload-response', {error: `error ${err}`});
                 }
-
-                // ctx.originalPayload = ctx.originalMsg.responsePayload.payload;
-
-                // console.log('EXTRACTED FROM PAYLOAD');
-                // console.log(ctx.originalPayload);
             };
 
             var setRequestId = function(ctx) {
