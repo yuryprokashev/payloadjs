@@ -83,7 +83,14 @@ class PayloadService extends EventEmitter{
             };
 
             var extractPayload = function (ctx) {
-                ctx.originalPayload = JSON.parse(ctx.originalMsg.responsePayload.payload);
+                console.log(ctx.originalMsg);
+                try {
+                    ctx.originalPayload = JSON.parse(ctx.originalMsg.responsePayload.payload);
+                }
+                catch (err) {
+                    throw new Error(`fuck original message! ${JSON.stringify(err)}`);
+                }
+
                 // ctx.originalPayload = ctx.originalMsg.responsePayload.payload;
 
                 // console.log('EXTRACTED FROM PAYLOAD');
