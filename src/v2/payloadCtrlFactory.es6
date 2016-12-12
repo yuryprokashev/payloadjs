@@ -82,7 +82,7 @@ module.exports = (payloadService, kafkaService) => {
             responsePayload: {},
             responseErrors: []
         };
-        payloadService.aggregatePayloads(topic, parsedMessage).then(
+        payloadService.aggregatePayloads(kafkaMessage.topic, parsedMessage).then(
             (result) => {
                 response.responsePayload = result;
                 kafkaService.send('get-month-data-response', response);
