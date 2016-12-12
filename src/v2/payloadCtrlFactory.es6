@@ -89,6 +89,7 @@ module.exports = (payloadService, kafkaService) => {
                 kafkaService.send('get-month-data-response', response);
             },
             (error) => {
+                console.log(error);
                 response.responseErrors.push(error);
                 kafkaService.send('get-month-data-response', response);
             }
