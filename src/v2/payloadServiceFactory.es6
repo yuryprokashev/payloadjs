@@ -203,6 +203,7 @@ module.exports = db => {
     payloadService.aggregatePayloads = (topic, parsedMessage) => {
         return new Promise(
             (res, rej) => {
+                console.log(parsedMessage);
 
                 validateParsedMessage(parsedMessage, rej);
 
@@ -211,7 +212,7 @@ module.exports = db => {
                 aggregate(agg, res, rej);
 
             }
-        )
+        );
     };
 
     return payloadService;
