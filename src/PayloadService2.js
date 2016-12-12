@@ -209,7 +209,7 @@ class PayloadService extends EventEmitter{
             function handleCopyPayloadRequest(req) {
                 // console.log('handleCopyPayloadRequest called');
 
-                function constructQueryAndFindData(ctx){
+                function constructQueryAndFindData(ctx) {
                     ctx.query = {};
                     ctx.query.type = ctx.originalMsg.payloadType || 1;
                     ctx.query.monthCode = ctx.originalMsg.sourcePeriod;
