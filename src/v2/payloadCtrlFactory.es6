@@ -75,7 +75,7 @@ module.exports = (payloadService, kafkaService) => {
     };
 
     payloadCtrl.aggregatePayloads = (kafkaMessage) => {
-        console.log(kafkaMessage);
+        // console.log(kafkaMessage);
         let parsedMessage = JSON.parse(kafkaMessage.value);
         let response = {
             requestId: parsedMessage.requestId,
@@ -84,6 +84,7 @@ module.exports = (payloadService, kafkaService) => {
         };
         payloadService.aggregatePayloads(kafkaMessage.topic, parsedMessage).then(
             (result) => {
+                console.log(result);
                 response.responsePayload = result;
                 kafkaService.send('get-month-data-response', response);
             },
