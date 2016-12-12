@@ -6,6 +6,7 @@
 module.exports = db => {
     let Payload = db.model("Payload", require('./payloadSchema.es6'), 'payloads');
     const guid = require('./guid.es6');
+    const MonthData = require('./MonthData.es6');
 
     // @function: validates parsedMessage. Works inside the Promise. Rejects the Promise if parsedMessage is not valid.
     const validateParsedMessage = (parsedMessage, reject) => {
@@ -68,6 +69,20 @@ module.exports = db => {
 
         }
     };
+    
+    const constructAggregateQuery = (topic, parsedMessage) => {
+        switch (topic) {
+            case 'get-month-data-request':
+                return [
+                    {$match: {userId: parsedMessage.user, "labels.isDeleted": false}},
+                    {$project: {_id:1, amount:1, monthCode: 1, isPlanned: {$cond:{if:{$eq:["$labels.isPlan",true]}, then:"plan", else:"fact"}}}},
+                    {$match: {monthCode: parsedMessage.targetPeriod}},
+                    {$project: { _id:1, amount:1,isPlanned: "$isPlanned"}},
+                    {$group: {_id: "$isPlanned", total: {$sum: "$amount"}}}
+                ];
+        }
+
+    };
 
     // @function: operates inside the Promise that is returned by all methods of PayloadService
     // @param: query - object that will be passed to mongoose to query Mongo. If undefined, all records will be returned.
@@ -115,6 +130,36 @@ module.exports = db => {
             }
         )
     };
+    
+    const aggregate = (aggQuery, resolve, reject) => {
+        if(resolve === undefined || reject === undefined) {
+            throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
+        }
+        if(typeof resolve !== 'function' || typeof reject !== 'function') {
+            throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
+        }
+        Payload.aggregate(aggQuery).exec(
+            (err, data) => {
+                if(err) {
+                    reject({error: `failed to aggregate payloads with query ${JSON.stringify(aggQuery)}`});
+                }
+                let monthData, fact, plan;
+                function findPlan(item) {
+                    return item._id === 'plan';
+                }
+
+                function findFact(item) {
+                    return item._id === 'fact';
+                }
+                fact = data.find(findFact) || {_id: 'fact', total: 0};
+                plan = data.find(findPlan) || {_id: 'plan', total: 0};
+                monthData = new MonthData(fact.total, plan.total);
+
+                resolve(monthData);
+
+            }
+        )
+    };
 
     
     const payloadService = {};
@@ -151,6 +196,20 @@ module.exports = db => {
 
             }
         );
+    };
+
+    payloadService.aggregatePayloads = (topic, parsedMessage) => {
+        return new Promise(
+            (res, rej) => {
+
+                validateParsedMessage(parsedMessage, rej);
+
+                let agg = constructAggregateQuery(topic, parsedMessage);
+
+                aggregate(agg, res, rej);
+
+            }
+        )
     };
 
     return payloadService;
