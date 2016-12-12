@@ -13,6 +13,9 @@ module.exports = db => {
         if(parsedMessage === undefined) {
             reject({error: 'parsed message is undefined'});
         }
+        if(parsedMessage.responseErrors === undefined) {
+            reject({error: 'parsed message contains no error array'});
+        }
         if(parsedMessage.responseErrors.length > 0) {
             reject({error: 'incoming kafkaMessage contains errors'});
         }
@@ -203,7 +206,7 @@ module.exports = db => {
     payloadService.aggregatePayloads = (topic, parsedMessage) => {
         return new Promise(
             (res, rej) => {
-                console.log(parsedMessage);
+                // console.log(parsedMessage);
 
                 validateParsedMessage(parsedMessage, rej);
 
