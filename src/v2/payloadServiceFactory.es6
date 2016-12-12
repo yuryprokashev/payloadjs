@@ -71,8 +71,10 @@ module.exports = db => {
     };
     
     const constructAggregateQuery = (topic, parsedMessage) => {
+        
         switch (topic) {
             case 'get-month-data-request':
+                console.log(parsedMessage);
                 return [
                     {$match: {userId: parsedMessage.user, "labels.isDeleted": false}},
                     {$project: {_id:1, amount:1, monthCode: 1, isPlanned: {$cond:{if:{$eq:["$labels.isPlan",true]}, then:"plan", else:"fact"}}}},
