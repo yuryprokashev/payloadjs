@@ -100,7 +100,7 @@ module.exports = (payloadService, kafkaService) => {
         
         payloadService.aggregatePayloads(kafkaMessage.topic, context.request).then(
             (result) => {
-                // console.log(result);
+                console.log(`result is ${result}`);
                 context.response = result;
                 kafkaService.send('get-month-data-response', context);
             },
