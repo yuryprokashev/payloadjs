@@ -76,22 +76,38 @@ module.exports = (payloadService, kafkaService) => {
 
     payloadCtrl.aggregatePayloads = (kafkaMessage) => {
         // console.log(kafkaMessage);
-        let parsedMessage = JSON.parse(kafkaMessage.value);
-        let response = {
-            requestId: parsedMessage.requestId,
-            responsePayload: {},
-            responseErrors: []
-        };
-        payloadService.aggregatePayloads(kafkaMessage.topic, parsedMessage).then(
+        let context = JSON.parse(kafkaMessage.value);
+        if(context === undefined) {
+            kafkaService.send('get-month-data-response',
+                {
+                    context: {
+                        response: {
+                            error: 'api sent empty context in kafkaMessage.value'
+                        }
+                    }
+                });
+        }
+        if(context.request === undefined) {
+            kafkaService.send('get-month-data-response',
+                {
+                    context: {
+                        response: {
+                            error: 'api sent empty request in kafkaMessage.value.context'
+                        }
+                    }
+                });
+        }
+        
+        payloadService.aggregatePayloads(kafkaMessage.topic, context.request).then(
             (result) => {
-                console.log(result);
-                response.responsePayload = result;
-                kafkaService.send('get-month-data-response', response);
+                // console.log(result);
+                context.response = result;
+                kafkaService.send('get-month-data-response', context);
             },
             (error) => {
-                console.log(error);
-                response.responseErrors.push(error);
-                kafkaService.send('get-month-data-response', response);
+                // console.log(error);
+                context.response = error;
+                kafkaService.send('get-month-data-response', context);
             }
         )
 

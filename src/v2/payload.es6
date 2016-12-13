@@ -32,10 +32,10 @@ kafkaBus.producer.on('ready', ()=> {
         db = dbFactory(config.db.dbURL);
         payloadService = payloadServiceFactory(db);
         payloadCtrl = payloadCtrlFactory(payloadService,  kafkaService);
-        payloadCtrl.subscribe('message-done', payloadCtrl.createOrUpdatePayload);
-        payloadCtrl.subscribe('payload-request', payloadCtrl.getPayloads);
-        payloadCtrl.subscribe('copy-payload-request', payloadCtrl.copyPayloads);
-        payloadCtrl.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
+        // payloadCtrl.subscribe('message-done', payloadCtrl.createOrUpdatePayload);
+        // payloadCtrl.subscribe('payload-request', payloadCtrl.getPayloads);
+        // payloadCtrl.subscribe('copy-payload-request', payloadCtrl.copyPayloads);
+        // payloadCtrl.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
         payloadCtrl.subscribe('get-month-data-request', payloadCtrl.aggregatePayloads);
     });
 });

@@ -73,15 +73,15 @@ module.exports = db => {
         }
     };
     
-    const constructAggregateQuery = (topic, parsedMessage) => {
+    const constructAggregateQuery = (topic, request) => {
         
         switch (topic) {
             case 'get-month-data-request':
-                console.log(parsedMessage);
+                console.log(request);
                 return [
-                    {$match: {userId: parsedMessage.user, "labels.isDeleted": false}},
+                    {$match: {userId: request.query.user, "labels.isDeleted": false}},
                     {$project: {_id:1, amount:1, monthCode: 1, isPlanned: {$cond:{if:{$eq:["$labels.isPlan",true]}, then:"plan", else:"fact"}}}},
-                    {$match: {monthCode: parsedMessage.targetPeriod}},
+                    {$match: {monthCode: request.query.targetPeriod}},
                     {$project: { _id:1, amount:1,isPlanned: "$isPlanned"}},
                     {$group: {_id: "$isPlanned", total: {$sum: "$amount"}}}
                 ];
@@ -203,14 +203,11 @@ module.exports = db => {
         );
     };
 
-    payloadService.aggregatePayloads = (topic, parsedMessage) => {
+    payloadService.aggregatePayloads = (topic, request) => {
         return new Promise(
             (res, rej) => {
-                // console.log(parsedMessage);
 
-                validateParsedMessage(parsedMessage, rej);
-
-                let agg = constructAggregateQuery(topic, parsedMessage);
+                let agg = constructAggregateQuery(topic, request);
 
                 aggregate(agg, res, rej);
 
