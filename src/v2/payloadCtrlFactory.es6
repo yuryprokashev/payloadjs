@@ -125,7 +125,7 @@ module.exports = (payloadService, kafkaService) => {
 
         payloadService.aggregate(query).then(
             (result) => {
-                console.log(`result is ${result}`);
+                console.log(`result is ${JSON.stringify(result)}`);
                 context.response = result;
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             },
