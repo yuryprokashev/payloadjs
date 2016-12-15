@@ -206,7 +206,6 @@ module.exports = db => {
     payloadService.aggregate = (query) => {
         return new Promise(
             (res, rej) => {
-
                 aggregate(query, res, rej);
             }
         );

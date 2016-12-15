@@ -121,15 +121,16 @@ module.exports = (payloadService, kafkaService) => {
         context = extractContext(kafkaMessage);
         query = extractQuery(kafkaMessage);
         data = undefined;
+        console.log(query);
 
         payloadService.aggregate(query).then(
             (result) => {
-                // console.log(`result is ${result}`);
+                console.log(`result is ${result}`);
                 context.response = result;
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             },
             (error) => {
-                // console.log(error);
+                console.log(error);
                 context.response = error;
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             }
