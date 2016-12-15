@@ -203,14 +203,11 @@ module.exports = db => {
         );
     };
 
-    payloadService.aggregatePayloads = (topic, request) => {
+    payloadService.aggregate = (query) => {
         return new Promise(
             (res, rej) => {
 
-                let agg = constructAggregateQuery(topic, request);
-
-                aggregate(agg, res, rej);
-
+                aggregate(query, res, rej);
             }
         );
     };

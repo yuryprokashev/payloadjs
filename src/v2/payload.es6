@@ -36,6 +36,6 @@ kafkaBus.producer.on('ready', ()=> {
         // payloadCtrl.subscribe('payload-request', payloadCtrl.getPayloads);
         // payloadCtrl.subscribe('copy-payload-request', payloadCtrl.copyPayloads);
         // payloadCtrl.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
-        payloadCtrl.subscribe('get-month-data-request', payloadCtrl.aggregatePayloads);
+        kafkaService.subscribe('get-month-data-request', payloadCtrl.getMonthData);
     });
 });

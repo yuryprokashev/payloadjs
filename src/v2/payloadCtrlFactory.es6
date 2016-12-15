@@ -3,11 +3,51 @@
  */
 'use strict';
 module.exports = (payloadService, kafkaService) => {
-    let payloadCtrl = {};
 
-    payloadCtrl.subscribe = (topic, callback) => {
-        kafkaService.subscribe(topic, callback);
+    const extractContext = (kafkaMessage) => {
+        let context;
+        context = JSON.parse(kafkaMessage.value);
+        if(context === undefined) {
+            let newContext = {};
+            newContext.response = {error: 'arrived context is empty'};
+            kafkaService.send(makeResponseTopic(kafkaMessage), newContext);
+        }
+        return context;
     };
+
+    const extractQuery = (kafkaMessage) => {
+        let query = JSON.parse(kafkaMessage.value).request.query;
+        if(query === undefined || query === null) {
+            let context;
+            context = extractContext(kafkaMessage);
+            context.response = {error: 'query is empty'};
+            kafkaService.send(makeResponseTopic(kafkaMessage), context);
+        }
+        else {
+            return query;
+        }
+    };
+
+    const extractWriteData =(kafkaMessage) => {
+        let profile = JSON.parse(kafkaMessage.value).request.writeData;
+        if(profile === undefined || profile === null) {
+            let context;
+            context = extractContext(kafkaMessage);
+            context.response = {error: 'profile is empty'};
+            kafkaService.send(makeResponseTopic(kafkaMessage), context);
+        }
+        else {
+            return profile;
+        }
+    };
+
+    const makeResponseTopic = (kafkaMessage) => {
+        let re = /-request/;
+        return kafkaMessage.topic.replace(re, '-response');
+    };
+
+
+    let payloadCtrl = {};
 
     payloadCtrl.createOrUpdatePayload = (kafkaMessage) => {
         let parsedMessage = JSON.parse(kafkaMessage.value);
@@ -74,40 +114,24 @@ module.exports = (payloadService, kafkaService) => {
 
     };
 
-    payloadCtrl.aggregatePayloads = (kafkaMessage) => {
-        // console.log(kafkaMessage);
-        let context = JSON.parse(kafkaMessage.value);
-        if(context === undefined) {
-            kafkaService.send('get-month-data-response',
-                {
-                    context: {
-                        response: {
-                            error: 'api sent empty context in kafkaMessage.value'
-                        }
-                    }
-                });
-        }
-        if(context.request === undefined) {
-            kafkaService.send('get-month-data-response',
-                {
-                    context: {
-                        response: {
-                            error: 'api sent empty request in kafkaMessage.value.context'
-                        }
-                    }
-                });
-        }
-        
-        payloadService.aggregatePayloads(kafkaMessage.topic, context.request).then(
+    payloadCtrl.getMonthData = (kafkaMessage) => {
+
+        let context, query, data;
+
+        context = extractContext(kafkaMessage);
+        query = extractQuery(kafkaMessage);
+        data = undefined;
+
+        payloadService.aggregate(query).then(
             (result) => {
-                console.log(`result is ${result}`);
+                // console.log(`result is ${result}`);
                 context.response = result;
-                kafkaService.send('get-month-data-response', context);
+                kafkaService.send(makeResponseTopic(kafkaMessage), context);
             },
             (error) => {
                 // console.log(error);
                 context.response = error;
-                kafkaService.send('get-month-data-response', context);
+                kafkaService.send(makeResponseTopic(kafkaMessage), context);
             }
         )
 
