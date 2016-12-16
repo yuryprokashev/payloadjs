@@ -94,13 +94,13 @@ module.exports = (payloadService, kafkaService) => {
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(JSON.stringify(data));
+                    console.log(JSON.stringify(kafkaMessage));
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(JSON.stringify(data));
+                    console.log(JSON.stringify(kafkaMessage));
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)
