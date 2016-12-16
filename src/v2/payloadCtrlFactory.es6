@@ -90,7 +90,7 @@ module.exports = (payloadService, kafkaService) => {
 //         handleItemDrop(event, args, s, http);
 //     };
 // })($scope, $http)
-
+        console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
