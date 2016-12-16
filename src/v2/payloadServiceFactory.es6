@@ -41,7 +41,7 @@ module.exports = db => {
 
     const createOrUpdate = (query, data, resolve, reject) => {
         if(data === undefined) {
-            reject({error: 'newItem is undefined, nothing to create'});
+            reject({error: 'data is undefined, nothing to create'});
         }
         if(resolve === undefined || reject === undefined) {
             throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
