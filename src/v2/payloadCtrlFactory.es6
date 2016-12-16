@@ -81,6 +81,7 @@ module.exports = (payloadService, kafkaService) => {
     let payloadCtrl = {};
 
     payloadCtrl.handleKafkaMessage = kafkaMessage => {
+        console.log(`outside service.handle \n ${JSON.stringify(kafkaMessage)}`);
         let method, query, data;
         method = extractMethod(kafkaMessage);
         query = extractQuery(kafkaMessage);
@@ -94,13 +95,13 @@ module.exports = (payloadService, kafkaService) => {
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(JSON.stringify(kafkaMessage));
+                    console.log(`inside service.handle \n ${JSON.stringify(kafkaMessage)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(JSON.stringify(kafkaMessage));
+                    console.log(`inside service.handle \n ${JSON.stringify(kafkaMessage)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)
