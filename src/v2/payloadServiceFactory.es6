@@ -8,87 +8,6 @@ module.exports = db => {
     const guid = require('./guid.es6');
     const MonthData = require('./MonthData.es6');
 
-    // @function: validates parsedMessage. Works inside the Promise. Rejects the Promise if parsedMessage is not valid.
-    const validateParsedMessage = (parsedMessage, reject) => {
-        if(parsedMessage === undefined) {
-            reject({error: 'parsed message is undefined'});
-        }
-        if(parsedMessage.responseErrors === undefined) {
-            reject({error: 'parsed message contains no error array'});
-        }
-        if(parsedMessage.responseErrors.length > 0) {
-            reject({error: 'incoming kafkaMessage contains errors'});
-        }
-    };
-    
-    // @function: parses parsedMessage and extracts 'payload' field out of it.
-    const extractPayload = (parsedMessage) => {
-        return JSON.parse(parsedMessage.payload);
-    };
-
-    // @function: constructs query object based on topic and parsedMessage
-    const constructQuery = (topic, parsedMessage) => {
-        switch (topic){
-            case 'message-done':
-                let parsedPayload = extractPayload(parsedMessage);
-                return {"_id": parsedPayload._id};
-            case 'payload-request':
-                return {
-                    type: parsedMessage.payloadType || 1,
-                    dayCode: parsedMessage.dayCode !== undefined ? parsedMessage.dayCode : undefined,
-                    monthCode: parsedMessage.monthCode !== undefined ? parsedMessage.monthCode : undefined,
-                    userId: parsedMessage.user,
-                    'labels.isDeleted': false
-                };
-            case 'copy-payload-request':
-                return 0;
-            case 'clear-payload-request':
-                return 1;
-            case 'get-month-data-request':
-                return 2;
-        }
-    };
-
-    const constructNewPayload = (topic, parsedMessage, parsedPayload) => {
-        switch (topic) {
-            case 'message-new':
-                return {
-                    _id: parsedPayload._id,
-                    type: 1,
-                    amount: parsedPayload.amount,
-                    dayCode: parsedPayload.dayCode,
-                    monthCode: parsedPayload.monthCode,
-                    description: parsedPayload.description,
-                    labels: parsedPayload.labels,
-                    occuredAt: new Date().valueOf(),
-                    sourceId: parsedMessage.responsePayload.sourceId,
-                    campaignId: parsedMessage.responsePayload.campaignId || 0,
-                    userId: parsedMessage.responsePayload.userId,
-                    messageId: parsedMessage.responsePayload._id,
-                    userToken: parsedMessage.responsePayload.userToken,
-                    commandId: parsedMessage.responsePayload.commandId
-                };
-            case 'copy-payload-request':
-
-        }
-    };
-    
-    const constructAggregateQuery = (topic, request) => {
-        
-        switch (topic) {
-            case 'get-month-data-request':
-                console.log(request);
-                return [
-                    {$match: {userId: request.query.user, "labels.isDeleted": false}},
-                    {$project: {_id:1, amount:1, monthCode: 1, isPlanned: {$cond:{if:{$eq:["$labels.isPlan",true]}, then:"plan", else:"fact"}}}},
-                    {$match: {monthCode: request.query.targetPeriod}},
-                    {$project: { _id:1, amount:1,isPlanned: "$isPlanned"}},
-                    {$group: {_id: "$isPlanned", total: {$sum: "$amount"}}}
-                ];
-        }
-
-    };
-
     // @function: operates inside the Promise that is returned by all methods of PayloadService
     // @param: query - object that will be passed to mongoose to query Mongo. If undefined, all records will be returned.
     // @param:  sortOrder - object that will be passed to mongoose to sort the results of query. If undefined, objects will be sorted by 'occuredAt' from Z to A.
@@ -169,33 +88,21 @@ module.exports = db => {
     
     const payloadService = {};
     
-    payloadService.createOrUpdate = (topic, parsedMessage) => {
+    payloadService.createOrUpdate = (query, data) => {
         return new Promise(
             (res, rej) => {
-
-                validateParsedMessage(parsedMessage, rej);
-
-                let parsedPayload = extractPayload(parsedMessage);
-
-                let query = constructQuery(topic, parsedMessage);
-
-                let payload = constructNewPayload(topic, parsedMessage, parsedPayload);
-
-                createOrUpdate(query, payload, res, rej);
-
+                createOrUpdate(query, data, res, rej);
             }
         );
     };
 
-    payloadService.findPayloads = (topic, parsedMessage) => {
+    payloadService.find = (query) => {
         return new Promise(
             (res, rej) => {
 
-                validateParsedMessage(parsedMessage, rej);
-
-                let query = constructQuery(topic, parsedMessage);
-
-                let sortOrder = parsedMessage.responsePayload.sortOrder;
+                let sortOrder;
+                sortOrder = query.sortOrder;
+                delete query['sortOrder'];
 
                 find(query, sortOrder, res, rej);
 

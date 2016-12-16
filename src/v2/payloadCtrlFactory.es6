@@ -50,45 +50,44 @@ module.exports = (payloadService, kafkaService) => {
     let payloadCtrl = {};
 
     payloadCtrl.createOrUpdatePayload = (kafkaMessage) => {
-        let parsedMessage = JSON.parse(kafkaMessage.value);
-        let topic = kafkaMessage.topic;
-        let response = {
-            requestId: parsedMessage.requestId,
-            responsePayload: {},
-            responseErrors: []
-        };
-        payloadService.createOrUpdate(topic, parsedMessage).then(
+
+        let context, query, data;
+        context = extractContext(kafkaMessage);
+        query = extractQuery(kafkaMessage);
+        data = extractWriteData(kafkaMessage);
+
+
+        payloadService.createOrUpdate(query, data).then(
             (result) => {
-                response.responsePayload = result;
-                kafkaService.send('payload-done', response);
+                context.response = result;
+                kafkaService.send('payload-done', context);
 
             },
             (error) => {
-                response.responseErrors.push(error);
-                kafkaService.send('payload-done', response);
+                context.response = error;
+                kafkaService.send('payload-done', context);
             }
         )
 
     };
 
     payloadCtrl.getPayloads = (kafkaMessage) => {
-        let parsedMessage = JSON.parse(kafkaMessage.value);
-        let topic = kafkaMessage.topic;
 
-        let response = {
-            requestId: parsedMessage.requestId,
-            responsePayload: {},
-            responseErrors: []
-        };
-        payloadService.findPayloads(topic, parsedMessage).then(
+        let context, query, data;
+
+        context = extractContext(kafkaMessage);
+        query = extractQuery(kafkaMessage);
+        data = undefined;
+
+        payloadService.find(query).then(
             (result) => {
-                response.responsePayload = result;
-                kafkaService.send('payload-response', response);
+                context.response = result;
+                kafkaService.send(makeResponseTopic(kafkaMessage), response);
 
             },
             (error) => {
-                response.responseErrors.push(error);
-                kafkaService.send('payload-response', response);
+                context.response = error;
+                kafkaService.send(makeResponseTopic(kafkaMessage), response);
             }
         )
 
@@ -121,16 +120,16 @@ module.exports = (payloadService, kafkaService) => {
         context = extractContext(kafkaMessage);
         query = extractQuery(kafkaMessage);
         data = undefined;
-        console.log(query);
+        // console.log(query);
 
         payloadService.aggregate(query).then(
             (result) => {
-                console.log(`result is ${JSON.stringify(result)}`);
+                // console.log(`result is ${JSON.stringify(result)}`);
                 context.response = result;
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             },
             (error) => {
-                console.log(error);
+                // console.log(error);
                 context.response = error;
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             }
