@@ -28,17 +28,25 @@ module.exports = (payloadService, kafkaService) => {
         }
     };
 
-    const extractWriteData =(kafkaMessage) => {
-        let profile = JSON.parse(kafkaMessage.value).request.writeData;
-        if(profile === undefined || profile === null) {
-            let context;
-            context = extractContext(kafkaMessage);
-            context.response = {error: 'profile is empty'};
-            kafkaService.send(makeResponseTopic(kafkaMessage), context);
+    const extractWriteData = (kafkaMessage) => {
+        let writeData, method;
+        method = extractMethod(kafkaMessage);
+        if(method === 'createOrUpdate'){
+            writeData = JSON.parse(kafkaMessage.value).request.writeData;
+            if(writeData === undefined || writeData === null) {
+                let context;
+                context = extractContext(kafkaMessage);
+                context.response = {error: 'writeData is empty'};
+                kafkaService.send(makeResponseTopic(kafkaMessage), context);
+            }
+            else {
+                return writeData;
+            }
         }
         else {
-            return profile;
+            return undefined;
         }
+
     };
 
     const makeResponseTopic = (kafkaMessage) => {
