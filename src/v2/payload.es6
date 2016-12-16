@@ -32,10 +32,16 @@ kafkaBus.producer.on('ready', ()=> {
         db = dbFactory(config.db.dbURL);
         payloadService = payloadServiceFactory(db);
         payloadCtrl = payloadCtrlFactory(payloadService,  kafkaService);
-        kafkaService.subscribe('create-message-response', payloadCtrl.createOrUpdatePayload);
-        kafkaService.subscribe('payload-request', payloadCtrl.getPayloads);
-        // payloadCtrl.subscribe('copy-payload-request', payloadCtrl.copyPayloads);
-        // payloadCtrl.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
-        kafkaService.subscribe('get-month-data-request', payloadCtrl.getMonthData);
+        // kafkaService.subscribe('create-message-response', payloadCtrl.createOrUpdatePayload);
+        // kafkaService.subscribe('payload-request', payloadCtrl.getPayloads);
+        // kafkaService.subscribe('copy-payload-request', payloadCtrl.copyPayloads);
+        // kafkaService.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
+        // kafkaService.subscribe('get-month-data-request', payloadCtrl.getMonthData);
+
+        kafkaService.subscribe('create-message-response', payloadCtrl.handleKafkaMessage);
+        kafkaService.subscribe('get-payload-request', payloadCtrl.handleKafkaMessage);
+        kafkaService.subscribe('copy-payload-request', payloadCtrl.handleKafkaMessage);
+        kafkaService.subscribe('clear-payload-request', payloadCtrl.handleKafkaMessage);
+        kafkaService.subscribe('agg-month-data-request', payloadCtrl.handleKafkaMessage);
     });
 });

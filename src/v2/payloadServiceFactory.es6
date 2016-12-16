@@ -13,7 +13,7 @@ module.exports = db => {
     // @param:  sortOrder - object that will be passed to mongoose to sort the results of query. If undefined, objects will be sorted by 'occuredAt' from Z to A.
     // @param: resolve - Promise function
     // @return: resolves or rejects the Promise, where executed.
-    const find = (query, sortOrder, resolve, reject) => {
+    const find = (query, data, resolve, reject) => {
         if(query === undefined) {
             query = {};
         }
@@ -26,6 +26,11 @@ module.exports = db => {
         if(typeof resolve !== 'function' || typeof reject !== 'function') {
             throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
         }
+
+        let sortOrder;
+        sortOrder = query.sortOrder;
+        delete query['sortOrder'];
+
         Payload.find(query).sort(sortOrder).exec(
             (err, result) => {
                 if(err){reject({error: `failed to find payloads with this query ${JSON.stringify(query)}`})};
@@ -34,8 +39,8 @@ module.exports = db => {
         )
     };
 
-    const createOrUpdate = (query, newItem, resolve, reject) => {
-        if(newItem === undefined) {
+    const createOrUpdate = (query, data, resolve, reject) => {
+        if(data === undefined) {
             reject({error: 'newItem is undefined, nothing to create'});
         }
         if(resolve === undefined || reject === undefined) {
@@ -46,7 +51,7 @@ module.exports = db => {
         }
         Payload.findOneAndUpdate(
             query,
-            newItem,
+            data,
             {new: true, upsert: true},
             (err, result) => {
                 if(err){reject({error:'failed to create or update payload'});}
@@ -55,7 +60,7 @@ module.exports = db => {
         )
     };
     
-    const aggregate = (aggQuery, resolve, reject) => {
+    const aggregate = (aggQuery, data, resolve, reject) => {
         if(resolve === undefined || reject === undefined) {
             throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
         }
@@ -85,38 +90,48 @@ module.exports = db => {
         )
     };
 
+    let methods = new Map();
+    methods.set('find', find);
+    methods.set('createOrUpdate', createOrUpdate);
+    methods.set('aggregate', aggregate);
+
     
     const payloadService = {};
     
-    payloadService.createOrUpdate = (query, data) => {
+    // payloadService.createOrUpdate = (query, data) => {
+    //     return new Promise(
+    //         (res, rej) => {
+    //             createOrUpdate(query, data, res, rej);
+    //         }
+    //     );
+    // };
+    //
+    // payloadService.find = (query, data) => {
+    //     return new Promise(
+    //         (res, rej) => {
+    //
+    //             find(query, data, res, rej);
+    //
+    //         }
+    //     );
+    // };
+    //
+    // payloadService.aggregate = (query, data) => {
+    //     return new Promise(
+    //         (res, rej) => {
+    //             aggregate(query, data, res, rej);
+    //         }
+    //     );
+    // };
+
+    payloadService.handle = (method, query, data) => {
         return new Promise(
             (res, rej) => {
-                createOrUpdate(query, data, res, rej);
+                methods.get(method)(query, data, res, rej);
             }
-        );
+        )
     };
 
-    payloadService.find = (query) => {
-        return new Promise(
-            (res, rej) => {
-
-                let sortOrder;
-                sortOrder = query.sortOrder;
-                delete query['sortOrder'];
-
-                find(query, sortOrder, res, rej);
-
-            }
-        );
-    };
-
-    payloadService.aggregate = (query) => {
-        return new Promise(
-            (res, rej) => {
-                aggregate(query, res, rej);
-            }
-        );
-    };
 
     return payloadService;
 };
