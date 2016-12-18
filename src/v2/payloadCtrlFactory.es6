@@ -28,12 +28,12 @@ module.exports = (payloadService, kafkaService) => {
         }
     };
     
-    const extractQueryFromResponse = kafkaMessage => {
-        let query, writeData;
-        writeData = extractWriteDataFromResponse(kafkaMessage);
-        query = {_id: JSON.parse(writeData.payload)._id};
-        return query;
-    };
+    // const extractQueryFromResponse = kafkaMessage => {
+    //     let query, writeData;
+    //     writeData = extractWriteDataFromResponse(kafkaMessage);
+    //     query = {_id: JSON.parse(writeData.payload)._id};
+    //     return query;
+    // };
 
     const extractWriteData = (kafkaMessage) => {
         let writeData, method;
@@ -70,6 +70,7 @@ module.exports = (payloadService, kafkaService) => {
             else {
                 let payload = JSON.parse(writeData.payload);
                 return {
+                    _id: payload._id,
                     type: 1, // TODO. It means 'Expense', but when bot send a payload, this is not expence.
                     amount: payload.amount,
                     dayCode: payload.dayCode,
@@ -163,8 +164,9 @@ module.exports = (payloadService, kafkaService) => {
         if(method === null) {
             console.log('shit! method extraction does not work');
         }
-        query = extractQueryFromResponse(kafkaMessage);
         data = extractWriteDataFromResponse(kafkaMessage);
+        query = {_id: data._id};
+        delete data['_id'];
 
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
