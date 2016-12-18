@@ -71,6 +71,7 @@ module.exports = (payloadService, kafkaService) => {
             }
             else {
                 let payload = JSON.parse(writeData.payload);
+                console.log(`Payload \n ${JSON.stringify(payload)}`);
                 return {
                     _id: payload.id || guid(),
                     type: 1, // TODO. It means 'Expense', but when bot send a payload, this is not expence.
