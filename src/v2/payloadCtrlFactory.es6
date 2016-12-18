@@ -4,6 +4,8 @@
 'use strict';
 module.exports = (payloadService, kafkaService) => {
 
+    const guid = require('./guid.es6');
+
     const extractContext = (kafkaMessage) => {
         let context;
         context = JSON.parse(kafkaMessage.value);
@@ -70,7 +72,7 @@ module.exports = (payloadService, kafkaService) => {
             else {
                 let payload = JSON.parse(writeData.payload);
                 return {
-                    _id: payload._id,
+                    _id: payload._id || guid(),
                     type: 1, // TODO. It means 'Expense', but when bot send a payload, this is not expence.
                     amount: payload.amount,
                     dayCode: payload.dayCode,
@@ -166,7 +168,6 @@ module.exports = (payloadService, kafkaService) => {
         }
         data = extractWriteDataFromResponse(kafkaMessage);
         query = {_id: data._id};
-        delete data['_id'];
 
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
