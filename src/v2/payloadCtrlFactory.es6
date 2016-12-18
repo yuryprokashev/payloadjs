@@ -72,7 +72,7 @@ module.exports = (payloadService, kafkaService) => {
             else {
                 let payload = JSON.parse(writeData.payload);
                 return {
-                    _id: payload._id || guid(),
+                    _id: payload.id || guid(),
                     type: 1, // TODO. It means 'Expense', but when bot send a payload, this is not expence.
                     amount: payload.amount,
                     dayCode: payload.dayCode,
