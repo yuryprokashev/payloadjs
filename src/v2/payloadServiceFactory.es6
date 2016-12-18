@@ -28,6 +28,8 @@ module.exports = db => {
         sortOrder = query.sortOrder;
         delete query['sortOrder'];
 
+        console.log(`inside find method: \n ${query} \n ${sortOrder}`);
+
         Payload.find(query).sort(sortOrder).exec(
             (err, result) => {
                 if(err){reject({error: `failed to find payloads with this query ${JSON.stringify(query)}`})};
