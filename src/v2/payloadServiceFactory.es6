@@ -94,32 +94,6 @@ module.exports = db => {
 
     
     const payloadService = {};
-    
-    // payloadService.createOrUpdate = (query, data) => {
-    //     return new Promise(
-    //         (res, rej) => {
-    //             createOrUpdate(query, data, res, rej);
-    //         }
-    //     );
-    // };
-    //
-    // payloadService.find = (query, data) => {
-    //     return new Promise(
-    //         (res, rej) => {
-    //
-    //             find(query, data, res, rej);
-    //
-    //         }
-    //     );
-    // };
-    //
-    // payloadService.aggregate = (query, data) => {
-    //     return new Promise(
-    //         (res, rej) => {
-    //             aggregate(query, data, res, rej);
-    //         }
-    //     );
-    // };
 
     payloadService.handle = (method, query, data) => {
         return new Promise(
