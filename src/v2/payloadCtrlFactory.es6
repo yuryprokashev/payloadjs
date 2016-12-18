@@ -48,6 +48,26 @@ module.exports = (payloadService, kafkaService) => {
         }
 
     };
+    
+    const extractWriteDataFromResponse = kafkaMessage => {
+        let writeData, method;
+        method = extractMethod(kafkaMessage);
+        if(method === 'createOrUpdate'){
+            writeData = JSON.parse(kafkaMessage.value).response;
+            if(writeData === undefined || writeData === null) {
+                let context;
+                context = extractContext(kafkaMessage);
+                context.response = {error: 'response in kafkaMessage is empty'};
+                kafkaService.send(makeResponseTopic(kafkaMessage), context);
+            }
+            else {
+                return writeData;
+            }
+        }
+        else {
+            return undefined;
+        }
+    };
 
     const makeResponseTopic = (kafkaMessage) => {
         if(/-request/.test(kafkaMessage.topic)){
@@ -82,16 +102,14 @@ module.exports = (payloadService, kafkaService) => {
 
     payloadCtrl.handleKafkaMessage = kafkaMessage => {
         console.log(`outside service.handle \n ${JSON.stringify(kafkaMessage)}`);
+        
         let method, query, data;
         method = extractMethod(kafkaMessage);
         query = extractQuery(kafkaMessage);
         data = extractWriteData(kafkaMessage);
-        // (function(s, http){
-//     return function (event, args) {
-//         handleItemDrop(event, args, s, http);
-//     };
-// })($scope, $http)
+
         console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
+
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
@@ -106,6 +124,35 @@ module.exports = (payloadService, kafkaService) => {
                 }
             })(kafkaMessage)
         );
+    };
+
+    payloadCtrl.reactKafkaMessage = kafkaMessage => {
+        let method, query, data;
+
+        console.log(`outside service.handle \n ${JSON.stringify(kafkaMessage)}`);
+
+        method = extractMethod(kafkaMessage);
+        query = {};
+        data = extractWriteDataFromResponse(kafkaMessage);
+
+        console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
+
+
+        payloadService.handle(method, query, data).then(
+            ((kafkaMessage) => {
+                return (data) => {
+                    console.log(`inside service.react \n ${JSON.stringify(kafkaMessage)}`);
+                    reply(data, kafkaMessage);
+                }
+            })(kafkaMessage),
+            ((kafkaMessage) => {
+                return (data) => {
+                    console.log(`inside service.react \n ${JSON.stringify(kafkaMessage)}`);
+                    reply(data, kafkaMessage);
+                }
+            })(kafkaMessage)
+
+        )
     };
 
     // payloadCtrl.createOrUpdatePayload = (kafkaMessage) => {

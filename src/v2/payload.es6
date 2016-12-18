@@ -38,7 +38,7 @@ kafkaBus.producer.on('ready', ()=> {
         // kafkaService.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
         // kafkaService.subscribe('get-month-data-request', payloadCtrl.getMonthData);
 
-        kafkaService.subscribe('create-message-response', payloadCtrl.handleKafkaMessage);
+        kafkaService.subscribe('create-message-response', payloadCtrl.reactKafkaMessage);
         kafkaService.subscribe('get-payload-request', payloadCtrl.handleKafkaMessage);
         kafkaService.subscribe('copy-payload-request', payloadCtrl.handleKafkaMessage);
         kafkaService.subscribe('clear-payload-request', payloadCtrl.handleKafkaMessage);
