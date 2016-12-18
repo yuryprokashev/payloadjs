@@ -29,8 +29,9 @@ module.exports = (payloadService, kafkaService) => {
     };
     
     const extractQueryFromResponse = kafkaMessage => {
-        let query;
-        query = {_id: JSON.parse(kafkaMessage.value).response._id};
+        let query, writeData;
+        writeData = extractWriteDataFromResponse(kafkaMessage);
+        query = {_id: JSON.parse(writeData.payload)._id};
         return query;
     };
 
