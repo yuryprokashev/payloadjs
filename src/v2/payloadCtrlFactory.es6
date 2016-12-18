@@ -82,11 +82,16 @@ module.exports = (payloadService, kafkaService) => {
     const extractMethod = kafkaMessage => {
         switch (kafkaMessage.topic){
             case (/(get)/.test(kafkaMessage.topic)):
+                console.log('extracted method find');
                 return 'find';
             case(/(create)|(update)/.test(kafkaMessage.topic)):
+                console.log('extracted method createOrUpdate');
                 return 'createOrUpdate';
             case(/agg/.test(kafkaMessage.topic)):
+                console.log('extracted method aggregate');
                 return 'aggregate';
+            default:
+                return null;
         }
     };
 
@@ -102,7 +107,7 @@ module.exports = (payloadService, kafkaService) => {
 
     payloadCtrl.handleKafkaMessage = kafkaMessage => {
         console.log(`outside service.handle \n ${JSON.stringify(kafkaMessage)}`);
-        
+
         let method, query, data;
         method = extractMethod(kafkaMessage);
         query = extractQuery(kafkaMessage);
@@ -129,9 +134,12 @@ module.exports = (payloadService, kafkaService) => {
     payloadCtrl.reactKafkaMessage = kafkaMessage => {
         let method, query, data;
 
-        console.log(`outside service.handle \n ${JSON.stringify(kafkaMessage)}`);
+        console.log(`outside service.react \n ${JSON.stringify(kafkaMessage)}`);
 
         method = extractMethod(kafkaMessage);
+        if(method === null) {
+            console.log('shit! method extraction doesnt work');
+        }
         query = {};
         data = extractWriteDataFromResponse(kafkaMessage);
 
