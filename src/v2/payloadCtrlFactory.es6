@@ -27,6 +27,12 @@ module.exports = (payloadService, kafkaService) => {
             return query;
         }
     };
+    
+    const extractQueryFromResponse = kafkaMessage => {
+        let query;
+        query = {_id: JSON.parse(kafkaMessage.value).response.id};
+        return query;
+    };
 
     const extractWriteData = (kafkaMessage) => {
         let writeData, method;
@@ -133,8 +139,6 @@ module.exports = (payloadService, kafkaService) => {
     payloadCtrl.reactKafkaMessage = kafkaMessage => {
         let method, query, data;
 
-        console.log(`outside service.react \n ${JSON.stringify(kafkaMessage)}`);
-
         method = extractMethod(kafkaMessage);
         if(method === null) {
             console.log('shit! method extraction doesnt work');
@@ -142,19 +146,16 @@ module.exports = (payloadService, kafkaService) => {
         query = {};
         data = extractWriteDataFromResponse(kafkaMessage);
 
-        console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
-
-
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`inside service.react \n ${JSON.stringify(kafkaMessage)}`);
+                    console.log(`SUCCESS inside service.react \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`inside service.react \n ${JSON.stringify(kafkaMessage)}`);
+                    console.log(`ERROR inside service.react \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)
