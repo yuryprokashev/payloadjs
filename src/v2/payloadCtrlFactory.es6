@@ -80,6 +80,7 @@ module.exports = (payloadService, kafkaService) => {
     };
 
     const extractMethod = kafkaMessage => {
+        console.log(`topic in extractMethod is ${kafkaMessage.topic}`);
         switch (kafkaMessage.topic){
             case (/(get)/.test(kafkaMessage.topic)):
                 console.log('extracted method find');
