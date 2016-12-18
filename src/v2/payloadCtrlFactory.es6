@@ -145,7 +145,7 @@ module.exports = (payloadService, kafkaService) => {
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`ERROR inside service.handle \n ${JSON.stringify(kafkaMessage)}`);
+                    console.log(`ERROR inside service.handle \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)
