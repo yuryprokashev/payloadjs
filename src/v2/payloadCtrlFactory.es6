@@ -67,7 +67,7 @@ module.exports = (payloadService, kafkaService) => {
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             }
             else {
-                let payload = JSON.parse(writeData.response.payload);
+                let payload = JSON.parse(writeData.payload);
                 return {
                     type: 1,
                     amount: payload.amount,
