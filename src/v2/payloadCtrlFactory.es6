@@ -131,6 +131,9 @@ module.exports = (payloadService, kafkaService) => {
 
         let method, query, data;
         method = extractMethod(kafkaMessage);
+        if(method === null) {
+            console.log('shit! extractMethod does not work!')
+        }
         query = extractQuery(kafkaMessage);
         data = extractWriteData(kafkaMessage);
 
@@ -139,7 +142,7 @@ module.exports = (payloadService, kafkaService) => {
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`SUCCESS inside service.handle \n ${JSON.stringify(kafkaMessage)}`);
+                    console.log(`SUCCESS inside service.handle \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
