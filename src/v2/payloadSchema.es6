@@ -26,7 +26,7 @@ const payloadSchema = new mongoose.Schema( {
         isDeleted: {type: Boolean, required: true, default: false} // -> Boolean indicator of Deleted payload (not to be send to Client)
     },
 
-    occuredAt: {type: Number, required: true }, // -> milliseconds from 1-Jan-1970, added on PayloadService, when the Message is just received.
+    occurredAt: {type: Number, required: true }, // -> milliseconds from 1-Jan-1970, added on PayloadService, when the Message is just received.
 
     storedAt: {type: Number, required: true}, // -> milliseconds from 1-Jan-1970, added on PayloadService, when saved to Payload collection.
 

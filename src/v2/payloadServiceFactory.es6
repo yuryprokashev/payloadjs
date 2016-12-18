@@ -18,7 +18,7 @@ module.exports = db => {
             query = {};
         }
         if(sortOrder === undefined) {
-            sortOrder = { occuredAt: -1 }
+            sortOrder = { occurredAt: -1 }
         }
         if(resolve === undefined || reject === undefined) {
             throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')

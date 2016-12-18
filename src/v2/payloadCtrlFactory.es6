@@ -30,7 +30,7 @@ module.exports = (payloadService, kafkaService) => {
     
     const extractQueryFromResponse = kafkaMessage => {
         let query;
-        query = {_id: JSON.parse(kafkaMessage.value).response.id};
+        query = {_id: JSON.parse(kafkaMessage.value).response._id};
         return query;
     };
 
@@ -67,7 +67,24 @@ module.exports = (payloadService, kafkaService) => {
                 kafkaService.send(makeResponseTopic(kafkaMessage), context);
             }
             else {
-                return writeData;
+                let payload = JSON.parse(writeData.response.payload);
+                return {
+                    type: 1,
+                    amount: payload.amount,
+                    dayCode: payload.dayCode,
+                    monthCode: payload.monthCode,
+                    description: payload.description || '',
+                    labels: payload.labels,
+                    occurredAt: writeData.occurredAt,
+                    sourceId: writeData.sourceId,
+                    campaignId: writeData.campaignId,
+                    userId: writeData.userId,
+                    messageId: writeData.id,
+                    userToken: writeData.userToken,
+                    commandId: writeData.commandId,
+                    storedAt: new Date().valueOf()
+
+                };
             }
         }
         else {
@@ -141,7 +158,7 @@ module.exports = (payloadService, kafkaService) => {
 
         method = extractMethod(kafkaMessage);
         if(method === null) {
-            console.log('shit! method extraction doesnt work');
+            console.log('shit! method extraction does not work');
         }
         query = {};
         data = extractWriteDataFromResponse(kafkaMessage);
