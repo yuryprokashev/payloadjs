@@ -80,23 +80,17 @@ module.exports = (payloadService, kafkaService) => {
     };
 
     const extractMethod = kafkaMessage => {
-        console.log(`topic in extractMethod is ${kafkaMessage.topic}`);
-        switch (kafkaMessage.topic){
-            case (/(get)/.test(kafkaMessage.topic) === true):
-                console.log('extracted method find');
-                return 'find';
-                break;
-            case(/(create)|(update)/.test(kafkaMessage.topic) === true):
-                console.log('extracted method createOrUpdate');
-                return 'createOrUpdate';
-                break;
-            case(/agg/.test(kafkaMessage.topic) === true):
-                console.log('extracted method aggregate');
-                return 'aggregate';
-                break;
-            default:
-                return null;
-                break;
+        if(/(get)/.test(kafkaMessage.topic) === true) {
+            return 'find';
+        }
+        else if(/(create)|(update)/.test(kafkaMessage.topic) === true) {
+            return 'createOrUpdate';
+        }
+        else if(/agg/.test(kafkaMessage.topic) === true) {
+            return 'aggregate';
+        }
+        else {
+            return null;
         }
     };
 
