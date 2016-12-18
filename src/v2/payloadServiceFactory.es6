@@ -28,7 +28,7 @@ module.exports = db => {
         sortOrder = query.sortOrder;
         delete query['sortOrder'];
 
-        console.log(`inside find method: \n ${query} \n ${sortOrder}`);
+        console.log(`inside find method: \n ${JSON.stringify(query)} \n ${JSON.stringify(sortOrder)}`);
 
         Payload.find(query).sort(sortOrder).exec(
             (err, result) => {
