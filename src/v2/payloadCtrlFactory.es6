@@ -33,7 +33,7 @@ module.exports = (payloadService, kafkaService) => {
     const extractWriteData = (kafkaMessage) => {
         let writeData, method;
         method = extractMethod(kafkaMessage);
-        if(method === 'createOrUpdate'){
+        if(method === 'createOrUpdate' || method === 'copy'){
             writeData = JSON.parse(kafkaMessage.value).request.writeData;
             if(writeData === undefined || writeData === null) {
                 let context;
