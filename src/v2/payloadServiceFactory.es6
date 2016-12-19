@@ -142,6 +142,7 @@ module.exports = db => {
         let copy, sourceProps, newProps;
         copy = initPayload();
         sourceProps = Object.getOwnPropertyNames(source);
+        console.log(sourceProps);
         for(let sp in sourceProps) {
             if(copy.hasOwnProperty(sp) === true && sp !== '_id') {
                 copy[sp] = source[sp];
@@ -152,6 +153,7 @@ module.exports = db => {
         }
 
         newProps = Object.getOwnPropertyNames(data);
+        console.log(newProps);
         for(let p in newProps) {
             if(copy.hasOwnProperty(p) === true){
                 copy[p] = data[p];
