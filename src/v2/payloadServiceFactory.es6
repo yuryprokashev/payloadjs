@@ -8,6 +8,29 @@ module.exports = db => {
     const guid = require('./guid.es6');
     const MonthData = require('./MonthData.es6');
 
+    const initPayload = () =>{
+        return {
+            _id: guid(),
+            type: undefined,
+            amount: undefined,
+            dayCode: undefined,
+            monthCode: undefined,
+            description: undefined,
+            labels: {
+                isDeleted: undefined,
+                isPlan: undefined
+            },
+            occurredAt: undefined,
+            storedAt: undefined,
+            sourceId: undefined,
+            campaignId: undefined,
+            userId: undefined,
+            messageId: undefined,
+            userToken: undefined,
+            commandId: undefined
+        }
+    };
+
     // @function: operates inside the Promise that is returned by all methods of PayloadService
     // @param: query - object that will be passed to mongoose to query Mongo. If undefined, all records will be returned.
     // @param:  sortOrder - object that will be passed to mongoose to sort the results of query. If undefined, objects will be sorted by 'occuredAt' from Z to A.
@@ -89,10 +112,62 @@ module.exports = db => {
         )
     };
 
+    const copy = (query, data, resolve, reject) => {
+
+        payloadService.handle('find', query, undefined).then(
+            (result) => {
+                let copies = result.map((item)=>{
+
+                    data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
+
+                    payloadService.handle('createOrUpdate',{}, copyPayload(item, data)).then(
+                        (result) => {
+                            console.log(result);
+                        },
+                        (error) => {
+                            reject({error: error});
+                        }
+                    );
+                });
+                resolve(Promise.all(copies));
+            },
+            (error) => {
+                reject({error: error});
+            }
+        );
+
+    };
+
+    const copyPayload = (source, data) => {
+        let copy, sourceProps, newProps;
+        copy = initPayload();
+        sourceProps = Object.getOwnPropertyNames(source);
+        for(let sp in sourceProps) {
+            if(copy.hasOwnProperty(sp) === true && sp !== '_id') {
+                copy[sp] = source[sp];
+            }
+            else {
+                console.log('source property mismatch in copyPayload');
+            }
+        }
+
+        newProps = Object.getOwnPropertyNames(data);
+        for(let p in newProps) {
+            if(copy.hasOwnProperty(p) === true){
+                copy[p] = data[p];
+            }
+            else {
+                console.log('new data property mismatch in copyPayload');
+            }
+        }
+        return copy;
+    };
+
     let methods = new Map();
     methods.set('find', find);
     methods.set('createOrUpdate', createOrUpdate);
     methods.set('aggregate', aggregate);
+    methods.set('copy', copy);
 
     
     const payloadService = {};
@@ -104,6 +179,11 @@ module.exports = db => {
             }
         )
     };
+
+    payloadService.initPayload = () => {
+        return initPayload();
+    };
+
 
 
     return payloadService;

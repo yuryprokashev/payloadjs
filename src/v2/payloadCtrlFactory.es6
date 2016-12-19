@@ -29,13 +29,6 @@ module.exports = (payloadService, kafkaService) => {
             return query;
         }
     };
-    
-    // const extractQueryFromResponse = kafkaMessage => {
-    //     let query, writeData;
-    //     writeData = extractWriteDataFromResponse(kafkaMessage);
-    //     query = {_id: JSON.parse(writeData.payload)._id};
-    //     return query;
-    // };
 
     const extractWriteData = (kafkaMessage) => {
         let writeData, method;
@@ -71,10 +64,10 @@ module.exports = (payloadService, kafkaService) => {
             }
             else {
                 let payload = JSON.parse(writeData.payload);
-                console.log(`Payload \n ${JSON.stringify(payload)}`);
+                // console.log(`Payload \n ${JSON.stringify(payload)}`);
                 return {
                     _id: payload.id || guid(),
-                    type: 1, // TODO. It means 'Expense', but when bot send a payload, this is not expence.
+                    type: 1, // TODO. It means 'Expense', but when bot send a payload, this is not expense.
                     amount: payload.amount,
                     dayCode: payload.dayCode,
                     monthCode: payload.monthCode,
@@ -117,6 +110,12 @@ module.exports = (payloadService, kafkaService) => {
         else if(/agg/.test(kafkaMessage.topic) === true) {
             return 'aggregate';
         }
+        else if(/copy/.test(kafkaMessage.topic) === true) {
+            return 'copy';
+        }
+        else if(/clear/.test(kafkaMessage.topic) === true) {
+            return 'delete';
+        }
         else {
             return null;
         }
@@ -128,6 +127,7 @@ module.exports = (payloadService, kafkaService) => {
         context.response = data;
         kafkaService.send(makeResponseTopic(kafkaMessage), context);
     };
+
 
 
     let payloadCtrl = {};
