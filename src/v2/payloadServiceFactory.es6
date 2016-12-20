@@ -94,30 +94,24 @@ module.exports = db => {
 
     const copy = (query, data) => {
         let copies;
-        find(query, data).then(
-            (result) => {
-                copies = result.map(
-                    (item) => {
-                        let copy = copyPayload(item._doc, data);
-                        return createOrUpdate({}, copy);
+
+        return new Promise(
+            (resolve, reject) => {
+                find(query, data).then(
+                    (result) => {
+                        copies = result.map(
+                            (item) => {
+                                data.dayCode = `${data.monthCode}${item._doc.dayCode.substring(6,8)}`;
+                                let copy = copyPayload(item._doc, data);
+                                return createOrUpdate({}, copy);
+                            });
+                        resolve(Promise.all(copies));
+                    },
+                    (error) => {
+                        reject({error: error});
                     }
                 );
-                console.log(JSON.stringify(copies));
-                return Promise.all(copies);
-            },
-            (error) => {
-                copies = error.map(
-                    (item) => {
-                        return item;
-                    }
-                );
-                return new Promise(
-                    (resolve, reject) => {
-                        reject({error: `failed to find items to copy with given query ${JSON.stringify(query)}`})
-                    }
-                );
-            }
-        );
+            })
     };
 
     const copyPayload = (source, data) => {
