@@ -118,11 +118,11 @@ module.exports = db => {
         payloadService.handle('find', query, undefined).then(
             (result) => {
                 let copies = result.map((item)=>{
-                    console.log(item);
+                    console.log(item._doc);
 
                     data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
 
-                    return payloadService.handle('createOrUpdate',{}, copyPayload(item, data)).then(
+                    return payloadService.handle('createOrUpdate',{}, copyPayload(item._doc, data)).then(
                         (result) => {
                             console.log(result);
                         },
