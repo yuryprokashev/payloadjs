@@ -94,7 +94,6 @@ module.exports = db => {
 
     const copy = (query, data) => {
         let copies;
-
         find(query, data).then(
             (result) => {
                 copies = result.map(
@@ -112,10 +111,13 @@ module.exports = db => {
                         return item;
                     }
                 );
-                return Promise.reject({error: `failed to find items to copy with given query ${JSON.stringify(query)} `})
+                return new Promise(
+                    (resolve, reject) => {
+                        reject({error: `failed to find items to copy with given query ${JSON.stringify(query)}`})
+                    }
+                );
             }
         );
-
     };
 
     const copyPayload = (source, data) => {
