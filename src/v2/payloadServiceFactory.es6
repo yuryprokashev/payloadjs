@@ -65,6 +65,19 @@ module.exports = db => {
         )
     };
 
+    const create = (query, data) => {
+        return new Promise(
+            (resolve, reject) => {
+                Payload.create(data).exec(
+                    (err, result) => {
+                        if(err) {reject({error: err})}
+                        resolve(result);
+                    }
+                )
+            }
+        )
+    };
+
     const aggregate = (aggQuery, data) => {
         return new Promise(
             (resolve, reject) => {
@@ -101,7 +114,7 @@ module.exports = db => {
                             (item) => {
                                 data.dayCode = `${data.monthCode}${item._doc.dayCode.substring(6,8)}`;
                                 let copy = copyPayload(item._doc, data);
-                                return createOrUpdate({_id: 0}, copy);
+                                return create(copy);
                             });
                         resolve(Promise.all(copies));
                     },
