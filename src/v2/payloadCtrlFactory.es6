@@ -147,7 +147,7 @@ module.exports = (payloadService, kafkaService) => {
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`SUCCESS inside service.handle \n ${JSON.stringify(data)}`);
+                    // console.log(`SUCCESS inside service.handle \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
