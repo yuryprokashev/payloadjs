@@ -41,7 +41,7 @@ module.exports = db => {
             (resolve, reject) => {
                 Payload.find(query).sort(sortOrder).exec(
                     (err, result) => {
-                        if(err){reject({error: `failed to find payloads with this query ${JSON.stringify(query)}`})};
+                        if(err){reject({error: err})};
                         resolve(result);
                     }
                 )
@@ -71,7 +71,7 @@ module.exports = db => {
                 Payload.aggregate(aggQuery).exec(
                     (err, data) => {
                         if(err) {
-                            reject({error: `failed to aggregate payloads with query ${JSON.stringify(aggQuery)}`});
+                            reject({error: err});
                         }
                         let monthData, fact, plan;
                         function findPlan(item) {
@@ -86,9 +86,7 @@ module.exports = db => {
                         monthData = new MonthData(fact.total, plan.total);
 
                         resolve(monthData);
-
-                    }
-                )
+                    });
             });
     };
 
@@ -103,7 +101,7 @@ module.exports = db => {
                             (item) => {
                                 data.dayCode = `${data.monthCode}${item._doc.dayCode.substring(6,8)}`;
                                 let copy = copyPayload(item._doc, data);
-                                return createOrUpdate({}, copy);
+                                return createOrUpdate({_id: 0}, copy);
                             });
                         resolve(Promise.all(copies));
                     },
@@ -120,8 +118,8 @@ module.exports = db => {
         sourceProps = Object.keys(source);
         // console.log(sourceProps);
         for(let sp of sourceProps) {
-            console.log(sp);
-            console.log(copy.hasOwnProperty(sp));
+            // console.log(sp);
+            // console.log(copy.hasOwnProperty(sp));
             if(copy.hasOwnProperty(sp) === true && /(_id)|(__v)/.test(sp) === false) {
                 copy[sp] = source[sp];
             }
