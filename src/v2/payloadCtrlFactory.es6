@@ -128,8 +128,6 @@ module.exports = (payloadService, kafkaService) => {
         kafkaService.send(makeResponseTopic(kafkaMessage), context);
     };
 
-
-
     let payloadCtrl = {};
 
     payloadCtrl.handleKafkaMessage = kafkaMessage => {

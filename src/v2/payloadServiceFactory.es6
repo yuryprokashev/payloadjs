@@ -37,35 +37,8 @@ module.exports = db => {
         sortOrder = query.sortOrder;
         delete query['sortOrder'];
 
-        // return new Promise(
-        //     (resolve, reject) => {
-        //         Payload.find(query).sort(sortOrder).exec(
-        //             (err, result) => {
-        //                 if(err){reject({error: err})};
-        //                 resolve(result);
-        //             }
-        //         )
-        //     }
-        // )
-
         return Payload.find(query).sort(sortOrder);
     };
-
-    // const createOrUpdate = (query, data) => {
-    //     return new Promise(
-    //         (resolve, reject) => {
-    //             Payload.findOneAndUpdate(
-    //                 query,
-    //                 data,
-    //                 {new: true, upsert: true},
-    //                 (err, result) => {
-    //                     if(err){reject({error:err});}
-    //                     resolve(result);
-    //                 }
-    //             )
-    //         }
-    //     )
-    // };
 
     const createOrUpdate = (query, data) => {
         return Payload.findOneAndUpdate(query, data, {new: true, upsert: true})
@@ -174,9 +147,7 @@ module.exports = db => {
     methods.set('copy', copy);
     methods.set('clear', clear);
 
-    
     const payloadService = {};
-
 
     payloadService.handle = (method, query, data) => {
         return methods.get(method)(query, data);
