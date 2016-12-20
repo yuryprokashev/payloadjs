@@ -166,7 +166,7 @@ module.exports = db => {
                 console.log('new data property mismatch in copyPayload');
             }
         }
-        console.log(`${copy} \n ${data} \n`);
+        console.log(`${JSON.stringify(copy)} \n ${JSON.stringify(data)} \n`);
         return copy;
     };
 
