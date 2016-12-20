@@ -151,7 +151,7 @@ module.exports = (payloadService, kafkaService) => {
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`ERROR inside service.handle \n ${JSON.stringify(data)}`);
+                    // console.log(`ERROR inside service.handle \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)
@@ -163,7 +163,7 @@ module.exports = (payloadService, kafkaService) => {
 
         method = extractMethod(kafkaMessage);
         if(method === null) {
-            console.log('shit! method extraction does not work');
+            // console.log('shit! method extraction does not work');
         }
         data = extractWriteDataFromResponse(kafkaMessage);
         query = {_id: data._id};
@@ -171,13 +171,13 @@ module.exports = (payloadService, kafkaService) => {
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`SUCCESS inside service.react \n ${JSON.stringify(data)}`);
+                    // console.log(`SUCCESS inside service.react \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    console.log(`ERROR inside service.react \n ${JSON.stringify(data)}`);
+                    // console.log(`ERROR inside service.react \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)

@@ -32,11 +32,6 @@ kafkaBus.producer.on('ready', ()=> {
         db = dbFactory(config.db.dbURL);
         payloadService = payloadServiceFactory(db);
         payloadCtrl = payloadCtrlFactory(payloadService,  kafkaService);
-        // kafkaService.subscribe('create-message-response', payloadCtrl.createOrUpdatePayload);
-        // kafkaService.subscribe('payload-request', payloadCtrl.getPayloads);
-        // kafkaService.subscribe('copy-payload-request', payloadCtrl.copyPayloads);
-        // kafkaService.subscribe('clear-payload-request', payloadCtrl.clearPayloads);
-        // kafkaService.subscribe('get-month-data-request', payloadCtrl.getMonthData);
 
         kafkaService.subscribe('create-message-response', payloadCtrl.reactKafkaMessage);
         kafkaService.subscribe('get-payload-request', payloadCtrl.handleKafkaMessage);
