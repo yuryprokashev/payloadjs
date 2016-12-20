@@ -60,6 +60,7 @@ module.exports = db => {
             }
         )
     };
+    
 
     const createOrUpdate = (query, data, resolve, reject) => {
         if(data === undefined) {
@@ -117,6 +118,7 @@ module.exports = db => {
         payloadService.handle('find', query, undefined).then(
             (result) => {
                 let copies = result.map((item)=>{
+                    console.log(item);
 
                     data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
 
