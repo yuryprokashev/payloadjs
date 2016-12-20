@@ -122,7 +122,7 @@ module.exports = db => {
 
                     data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
 
-                    payloadService.handle('createOrUpdate',{}, copyPayload(item, data)).then(
+                    return payloadService.handle('createOrUpdate',{}, copyPayload(item, data)).then(
                         (result) => {
                             console.log(result);
                         },
@@ -143,7 +143,7 @@ module.exports = db => {
     const copyPayload = (source, data) => {
         let copy, sourceProps, newProps;
         copy = initPayload();
-        sourceProps = Object.getOwnPropertyNames(source);
+        sourceProps = Object.keys(source);
         console.log(sourceProps);
         for(let sp in sourceProps) {
             if(copy.hasOwnProperty(sp) === true && sp !== '_id') {
@@ -154,7 +154,7 @@ module.exports = db => {
             }
         }
 
-        newProps = Object.getOwnPropertyNames(data);
+        newProps = Object.keys(data);
         console.log(newProps);
         for(let p in newProps) {
             if(copy.hasOwnProperty(p) === true){
@@ -183,12 +183,6 @@ module.exports = db => {
             }
         )
     };
-
-    payloadService.initPayload = () => {
-        return initPayload();
-    };
-
-
 
     return payloadService;
 };
