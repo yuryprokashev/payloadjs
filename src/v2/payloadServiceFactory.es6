@@ -146,8 +146,8 @@ module.exports = db => {
         sourceProps = Object.keys(source);
         // console.log(sourceProps);
         for(let sp of sourceProps) {
-            console.log(sp);
-            console.log(copy.hasOwnProperty(sp));
+            // console.log(sp);
+            // console.log(copy.hasOwnProperty(sp));
             if(copy.hasOwnProperty(sp) === true && sp !== '_id') {
                 copy[sp] = source[sp];
             }
@@ -166,6 +166,7 @@ module.exports = db => {
                 console.log('new data property mismatch in copyPayload');
             }
         }
+        console.log(`${copy} \n ${data} \n`);
         return copy;
     };
 
