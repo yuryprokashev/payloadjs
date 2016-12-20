@@ -116,7 +116,7 @@ module.exports = db => {
                             (item) => {
                                 data.dayCode = `${data.monthCode}${item._doc.dayCode.substring(6,8)}`;
                                 let copy = copyPayload(item._doc, data);
-                                return create(copy);
+                                return create({}, copy);
                             });
                         resolve(Promise.all(copies));
                     },
