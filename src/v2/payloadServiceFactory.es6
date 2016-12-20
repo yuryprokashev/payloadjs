@@ -172,34 +172,58 @@ module.exports = db => {
                     }
                 )
             });
-    }
+    };
 
-    const copy = (query, data, resolve, reject) => {
+    // const copy = (query, data, resolve, reject) => {
+    //
+    //     payloadService.handle('find', query, undefined).then(
+    //         (result) => {
+    //             let copies = result.map((item)=>{
+    //                 // console.log(item._doc);
+    //
+    //                 data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
+    //
+    //                 payloadService.handle('createOrUpdate',{}, copyPayload(item._doc, data)).then(
+    //                     (result) => {
+    //                         console.log(result);
+    //                         return result;
+    //                     },
+    //                     (error) => {
+    //                         reject({error: error});
+    //                     }
+    //                 );
+    //             });
+    //             resolve(Promise.all(copies));
+    //         },
+    //         (error) => {
+    //             reject({error: error});
+    //         }
+    //     );
+    //
+    // };
 
-        payloadService.handle('find', query, undefined).then(
+    const copy = (query, data) => {
+        let copies;
+
+        payloadService.handle('find', query, undefined). then(
             (result) => {
-                let copies = result.map((item)=>{
-                    // console.log(item._doc);
-
-                    data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
-
-                    payloadService.handle('createOrUpdate',{}, copyPayload(item._doc, data)).then(
-                        (result) => {
-                            console.log(result);
-                            return result;
-                        },
-                        (error) => {
-                            reject({error: error});
-                        }
-                    );
-                });
-                resolve(Promise.all(copies));
+                copies = result.map(
+                    (item) => {
+                        let copy = copyPayload(item._doc, data);
+                        return payloadService.handle('createOrUpdate', {}, copy);
+                    }
+                )
             },
             (error) => {
-                reject({error: error});
+                copies = error.map(
+                    (item) => {
+                        return item;
+                    }
+                )
+
             }
         );
-
+        return Promise.all(copies);
     };
 
     const copyPayload = (source, data) => {
