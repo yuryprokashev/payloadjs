@@ -37,47 +37,38 @@ module.exports = db => {
         sortOrder = query.sortOrder;
         delete query['sortOrder'];
 
-        return new Promise(
-            (resolve, reject) => {
-                Payload.find(query).sort(sortOrder).exec(
-                    (err, result) => {
-                        if(err){reject({error: err})};
-                        resolve(result);
-                    }
-                )
-            }
-        )
-    };
-
-    const createOrUpdate = (query, data) => {
-        return new Promise(
-            (resolve, reject) => {
-                Payload.findOneAndUpdate(
-                    query,
-                    data,
-                    {new: true, upsert: true},
-                    (err, result) => {
-                        if(err){reject({error:err});}
-                        resolve(result);
-                    }
-                )
-            }
-        )
-    };
-
-    const create = (query, data) => {
-        
-        return Payload.create(data);
         // return new Promise(
         //     (resolve, reject) => {
-        //         Payload.create(data).exec(
+        //         Payload.find(query).sort(sortOrder).exec(
         //             (err, result) => {
-        //                 if(err) {reject({error: err})}
+        //                 if(err){reject({error: err})};
         //                 resolve(result);
         //             }
         //         )
         //     }
         // )
+
+        return Payload.find(query).sort(sortOrder);
+    };
+
+    // const createOrUpdate = (query, data) => {
+    //     return new Promise(
+    //         (resolve, reject) => {
+    //             Payload.findOneAndUpdate(
+    //                 query,
+    //                 data,
+    //                 {new: true, upsert: true},
+    //                 (err, result) => {
+    //                     if(err){reject({error:err});}
+    //                     resolve(result);
+    //                 }
+    //             )
+    //         }
+    //     )
+    // };
+
+    const createOrUpdate = (query, data) => {
+        return Payload.findOneAndUpdate(query, data, {new: true, upsert: true})
     };
 
     const aggregate = (aggQuery, data) => {
@@ -116,7 +107,7 @@ module.exports = db => {
                             (item) => {
                                 data.dayCode = `${data.monthCode}${item._doc.dayCode.substring(6,8)}`;
                                 let copy = copyPayload(item._doc, data);
-                                return create({}, copy);
+                                return Payload.create(copy);
                             });
                         resolve(Promise.all(copies));
                     },
@@ -157,11 +148,31 @@ module.exports = db => {
         return copy;
     };
 
+    const clear = (query, data) => {
+        let deleted;
+        return new Promise(
+            (resolve, reject) => {
+                find(query, data).then(
+                    (result) => {
+                        deleted = result.map(
+                            (item) => {
+                                return Payload.update({_id: item._doc._id}, {'labels.isDeleted': true}, {multi:true});
+                            });
+                        resolve(Promise.all(deleted));
+                    },
+                    (error) => {
+                        reject({error: error});
+                    }
+                );
+            })
+    };
+
     let methods = new Map();
     methods.set('find', find);
     methods.set('createOrUpdate', createOrUpdate);
     methods.set('aggregate', aggregate);
     methods.set('copy', copy);
+    methods.set('clear', clear);
 
     
     const payloadService = {};

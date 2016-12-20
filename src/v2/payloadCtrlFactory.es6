@@ -114,7 +114,7 @@ module.exports = (payloadService, kafkaService) => {
             return 'copy';
         }
         else if(/clear/.test(kafkaMessage.topic) === true) {
-            return 'delete';
+            return 'clear';
         }
         else {
             return null;
