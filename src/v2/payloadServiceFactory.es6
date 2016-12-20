@@ -66,16 +66,18 @@ module.exports = db => {
     };
 
     const create = (query, data) => {
-        return new Promise(
-            (resolve, reject) => {
-                Payload.create(data).exec(
-                    (err, result) => {
-                        if(err) {reject({error: err})}
-                        resolve(result);
-                    }
-                )
-            }
-        )
+        
+        return Payload.create(data);
+        // return new Promise(
+        //     (resolve, reject) => {
+        //         Payload.create(data).exec(
+        //             (err, result) => {
+        //                 if(err) {reject({error: err})}
+        //                 resolve(result);
+        //             }
+        //         )
+        //     }
+        // )
     };
 
     const aggregate = (aggQuery, data) => {
