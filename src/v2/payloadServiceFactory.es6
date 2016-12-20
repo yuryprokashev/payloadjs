@@ -57,7 +57,7 @@ module.exports = db => {
                     data,
                     {new: true, upsert: true},
                     (err, result) => {
-                        if(err){reject({error:'failed to create or update payload'});}
+                        if(err){reject({error:err});}
                         resolve(result);
                     }
                 )
