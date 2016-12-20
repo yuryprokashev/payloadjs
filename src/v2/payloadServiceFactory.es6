@@ -251,7 +251,7 @@ module.exports = db => {
 
 
     payloadService.handle = (method, query, data) => {
-        methods.get(method)(query, data);
+        return methods.get(method)(query, data);
     };
 
     return payloadService;
