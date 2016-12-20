@@ -36,95 +36,157 @@ module.exports = db => {
     // @param:  sortOrder - object that will be passed to mongoose to sort the results of query. If undefined, objects will be sorted by 'occuredAt' from Z to A.
     // @param: resolve - Promise function
     // @return: resolves or rejects the Promise, where executed.
-    const find = (query, data, resolve, reject) => {
-        if(query === undefined) {
-            query = {};
-        }
-        if(resolve === undefined || reject === undefined) {
-            throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
-        }
-        if(typeof resolve !== 'function' || typeof reject !== 'function') {
-            throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
-        }
-
+    // const find = (query, data, resolve, reject) => {
+    //     if(query === undefined) {
+    //         query = {};
+    //     }
+    //     if(resolve === undefined || reject === undefined) {
+    //         throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
+    //     }
+    //     if(typeof resolve !== 'function' || typeof reject !== 'function') {
+    //         throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
+    //     }
+    //
+    //     let sortOrder;
+    //     sortOrder = query.sortOrder;
+    //     delete query['sortOrder'];
+    //
+    //     console.log(`inside find method: \n ${JSON.stringify(query)} \n ${JSON.stringify(sortOrder)}`);
+    //
+    //     Payload.find(query).sort(sortOrder).exec(
+    //         (err, result) => {
+    //             if(err){reject({error: `failed to find payloads with this query ${JSON.stringify(query)}`})};
+    //             resolve(result);
+    //         }
+    //     )
+    // };
+    
+    const find = (query, data) => {
         let sortOrder;
+
         sortOrder = query.sortOrder;
         delete query['sortOrder'];
 
-        console.log(`inside find method: \n ${JSON.stringify(query)} \n ${JSON.stringify(sortOrder)}`);
+        return new Promise(
+            (resolve, reject) => {
+                Payload.find(query).sort(sortOrder).exec(
+                    (err, result) => {
+                        if(err){reject({error: `failed to find payloads with this query ${JSON.stringify(query)}`})};
+                        resolve(result);
+                    }
+                )
+            }
+        )
+    }
+    
 
-        Payload.find(query).sort(sortOrder).exec(
-            (err, result) => {
-                if(err){reject({error: `failed to find payloads with this query ${JSON.stringify(query)}`})};
-                resolve(result);
+    // const createOrUpdate = (query, data, resolve, reject) => {
+    //     if(data === undefined) {
+    //         reject({error: 'data is undefined, nothing to create'});
+    //     }
+    //     if(resolve === undefined || reject === undefined) {
+    //         throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
+    //     }
+    //     if(typeof resolve !== 'function' || typeof reject !== 'function') {
+    //         throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
+    //     }
+    //     Payload.findOneAndUpdate(
+    //         query,
+    //         data,
+    //         {new: true, upsert: true},
+    //         (err, result) => {
+    //             if(err){reject({error:'failed to create or update payload'});}
+    //             resolve(result);
+    //         }
+    //     )
+    // };
+
+    const createOrUpdate = (query, data) => {
+        return new Promise(
+            (resolve, reject) => {
+                Payload.findOneAndUpdate(
+                    query,
+                    data,
+                    {new: true, upsert: true},
+                    (err, result) => {
+                        if(err){reject({error:'failed to create or update payload'});}
+                        resolve(result);
+                    }
+                )
             }
         )
     };
     
+    // const aggregate = (aggQuery, data, resolve, reject) => {
+    //     if(resolve === undefined || reject === undefined) {
+    //         throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
+    //     }
+    //     if(typeof resolve !== 'function' || typeof reject !== 'function') {
+    //         throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
+    //     }
+    //     Payload.aggregate(aggQuery).exec(
+    //         (err, data) => {
+    //             if(err) {
+    //                 reject({error: `failed to aggregate payloads with query ${JSON.stringify(aggQuery)}`});
+    //             }
+    //             let monthData, fact, plan;
+    //             function findPlan(item) {
+    //                 return item._id === 'plan';
+    //             }
+    //
+    //             function findFact(item) {
+    //                 return item._id === 'fact';
+    //             }
+    //             fact = data.find(findFact) || {_id: 'fact', total: 0};
+    //             plan = data.find(findPlan) || {_id: 'plan', total: 0};
+    //             monthData = new MonthData(fact.total, plan.total);
+    //
+    //             resolve(monthData);
+    //
+    //         }
+    //     )
+    // };
 
-    const createOrUpdate = (query, data, resolve, reject) => {
-        if(data === undefined) {
-            reject({error: 'data is undefined, nothing to create'});
-        }
-        if(resolve === undefined || reject === undefined) {
-            throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
-        }
-        if(typeof resolve !== 'function' || typeof reject !== 'function') {
-            throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
-        }
-        Payload.findOneAndUpdate(
-            query,
-            data,
-            {new: true, upsert: true},
-            (err, result) => {
-                if(err){reject({error:'failed to create or update payload'});}
-                resolve(result);
-            }
-        )
-    };
-    
-    const aggregate = (aggQuery, data, resolve, reject) => {
-        if(resolve === undefined || reject === undefined) {
-            throw new Error('find function works inside Promise. Pass resolve and Reject functions as arguments')
-        }
-        if(typeof resolve !== 'function' || typeof reject !== 'function') {
-            throw new Error('find function works inside Promise. Resolve and Reject passed are not functions');
-        }
-        Payload.aggregate(aggQuery).exec(
-            (err, data) => {
-                if(err) {
-                    reject({error: `failed to aggregate payloads with query ${JSON.stringify(aggQuery)}`});
-                }
-                let monthData, fact, plan;
-                function findPlan(item) {
-                    return item._id === 'plan';
-                }
+    const aggregate = (aggQuery, data) => {
+        return new Promise(
+            (resolve, reject) => {
+                Payload.aggregate(aggQuery).exec(
+                    (err, data) => {
+                        if(err) {
+                            reject({error: `failed to aggregate payloads with query ${JSON.stringify(aggQuery)}`});
+                        }
+                        let monthData, fact, plan;
+                        function findPlan(item) {
+                            return item._id === 'plan';
+                        }
 
-                function findFact(item) {
-                    return item._id === 'fact';
-                }
-                fact = data.find(findFact) || {_id: 'fact', total: 0};
-                plan = data.find(findPlan) || {_id: 'plan', total: 0};
-                monthData = new MonthData(fact.total, plan.total);
+                        function findFact(item) {
+                            return item._id === 'fact';
+                        }
+                        fact = data.find(findFact) || {_id: 'fact', total: 0};
+                        plan = data.find(findPlan) || {_id: 'plan', total: 0};
+                        monthData = new MonthData(fact.total, plan.total);
 
-                resolve(monthData);
+                        resolve(monthData);
 
-            }
-        )
-    };
+                    }
+                )
+            });
+    }
 
     const copy = (query, data, resolve, reject) => {
 
         payloadService.handle('find', query, undefined).then(
             (result) => {
                 let copies = result.map((item)=>{
-                    console.log(item._doc);
+                    // console.log(item._doc);
 
                     data.dayCode = `${data.monthCode}${item.dayCode.substring(6,8)}`;
 
-                    return payloadService.handle('createOrUpdate',{}, copyPayload(item._doc, data)).then(
+                    payloadService.handle('createOrUpdate',{}, copyPayload(item._doc, data)).then(
                         (result) => {
                             console.log(result);
+                            return result;
                         },
                         (error) => {
                             reject({error: error});
@@ -166,7 +228,7 @@ module.exports = db => {
                 console.log('new data property mismatch in copyPayload');
             }
         }
-        console.log(`${JSON.stringify(copy)} \n ${JSON.stringify(data)} \n`);
+        // console.log(`${JSON.stringify(copy)} \n ${JSON.stringify(data)} \n`);
         return copy;
     };
 
@@ -179,12 +241,17 @@ module.exports = db => {
     
     const payloadService = {};
 
+    // payloadService.handle = (method, query, data) => {
+    //     return new Promise(
+    //         (res, rej) => {
+    //             methods.get(method)(query, data, res, rej);
+    //         }
+    //     )
+    // };
+
+
     payloadService.handle = (method, query, data) => {
-        return new Promise(
-            (res, rej) => {
-                methods.get(method)(query, data, res, rej);
-            }
-        )
+        methods.get(method)(query, data);
     };
 
     return payloadService;
