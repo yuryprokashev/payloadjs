@@ -103,6 +103,7 @@ module.exports = db => {
                         return createOrUpdate({}, copy);
                     }
                 );
+                console.log(JSON.stringify(copies));
                 return Promise.all(copies);
             },
             (error) => {
