@@ -122,7 +122,7 @@ module.exports = db => {
         for(let sp of sourceProps) {
             console.log(sp);
             console.log(copy.hasOwnProperty(sp));
-            if(copy.hasOwnProperty(sp) === true && sp !== '_id') {
+            if(copy.hasOwnProperty(sp) === true && /(_id)|(__v)/.test(sp) === false) {
                 copy[sp] = source[sp];
             }
             else {
