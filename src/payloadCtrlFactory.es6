@@ -68,7 +68,7 @@ module.exports = (payloadService, kafkaService) => {
                 return {
                     _id: payload.id || guid(),
                     type: payload.type || 1, // TODO. 1  means 'Expense', but when bot send a payload, this is not expense.
-                    amount: payload.amount || undefined,
+                    amount: payload.amount || 0,
                     dayCode: payload.dayCode,
                     monthCode: payload.monthCode,
                     description: payload.description || '',
