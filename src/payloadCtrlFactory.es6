@@ -171,13 +171,13 @@ module.exports = (payloadService, kafkaService) => {
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
                 return (data) => {
-                    // console.log(`SUCCESS inside service.react \n ${JSON.stringify(data)}`);
+                    console.log(`SUCCESS inside service.react \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage),
             ((kafkaMessage) => {
                 return (data) => {
-                    // console.log(`ERROR inside service.react \n ${JSON.stringify(data)}`);
+                    console.log(`ERROR inside service.react \n ${JSON.stringify(data)}`);
                     reply(data, kafkaMessage);
                 }
             })(kafkaMessage)
