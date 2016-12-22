@@ -67,7 +67,7 @@ module.exports = (payloadService, kafkaService) => {
                 // console.log(`Payload \n ${JSON.stringify(payload)}`);
                 return {
                     _id: payload.id || guid(),
-                    type: payload.type,
+                    type: payload.type || 0,
                     amount: payload.amount || 0,
                     dayCode: payload.dayCode,
                     monthCode: payload.monthCode,
