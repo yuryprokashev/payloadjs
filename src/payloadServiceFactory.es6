@@ -5,7 +5,7 @@
 'use strict';
 module.exports = db => {
     let Payload = db.model("Payload", require('./payloadSchema.es6'), 'payloads');
-    const guid = require('./guid.es6');
+    const guid = require('./helpers/guid.es6');
     const MonthData = require('./MonthData.es6');
 
     const initPayload = () =>{

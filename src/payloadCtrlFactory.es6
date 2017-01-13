@@ -4,7 +4,7 @@
 'use strict';
 module.exports = (payloadService, kafkaService) => {
 
-    const guid = require('./guid.es6');
+    const guid = require('./helpers/guid.es6');
 
     const extractContext = (kafkaMessage) => {
         let context;

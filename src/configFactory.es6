@@ -13,7 +13,7 @@ module.exports = (kafkaService) => {
 
     let configService = new ConfigService();
     let config = {};
-    let requestId = require('./guid.es6')();
+    let requestId = require('./helpers/guid.es6')();
     kafkaService.subscribe('get-config-response', (kafkaMessage) => {
         let message = JSON.parse(kafkaMessage.value);
         if(message.requestId === requestId) {
