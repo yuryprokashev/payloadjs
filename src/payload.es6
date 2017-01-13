@@ -42,7 +42,7 @@ kafkaService = kafkaServiceFactory(kafkaBus);
 kafkaBus.producer.on('ready', ()=> {
     configService = configFactory(kafkaService);
     configService.on('ready', ()=>{
-        dbConfig = configService.get(SERVICE_NAME);
+        dbConfig = configService.get(SERVICE_NAME).db;
 
         dbConnectStr = buildMongoConStr(dbConfig);
         db = dbFactory(dbConnectStr);
