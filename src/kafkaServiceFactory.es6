@@ -56,7 +56,7 @@ module.exports = (kafkaBus) =>{
                 t.push({topic: topic, partition: i});
             }
             return t;
-        })(6);
+        })(1);
         kafkaBus.consumer.addTopics(topics, onTopicsAdded);
         kafkaBus.consumer.on('message', onConsumerMessage);
         kafkaBus.consumer.on('error', onConsumerError);
