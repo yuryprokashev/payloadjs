@@ -57,7 +57,8 @@ const payloadSchema = new mongoose.Schema( {
         type: Number,
         required: true,
         get: v => Math.round(v),
-        set: v => Math.round(v)
+        set: v => Math.round(v),
+        default: new Date().valueOf()
     }, // -> milliseconds from 1-Jan-1970, added on PayloadService, when saved to Payload collection.
 
     sourceId: {

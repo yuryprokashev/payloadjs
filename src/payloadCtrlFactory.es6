@@ -80,8 +80,7 @@ module.exports = (payloadService, kafkaService) => {
                     messageId: writeData.id,
                     userToken: writeData.userToken || undefined,
                     commandId: writeData.commandId || undefined,
-                    storedAt: new Date().valueOf()
-
+                    // storedAt: new Date().valueOf()
                 };
             }
         }

@@ -43,7 +43,7 @@ module.exports = db => {
     const createOrUpdate = (query, data) => {
         console.log(`query \n ${JSON.stringify(query)}\n`);
         console.log(`data \n ${JSON.stringify(data)}\n`);
-        return Payload.findOneAndUpdate(query, data, {new: true, upsert: true});
+        return Payload.findOneAndUpdate(query, data, {new: true, upsert: true, setDefaultsOnInsert: true});
     };
 
     const aggregate = (aggQuery, data) => {
