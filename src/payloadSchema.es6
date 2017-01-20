@@ -15,8 +15,8 @@ const payloadSchema = new mongoose.Schema( {
     type: {
         type: Number,
         required: true,
-        get: v => Math.round(v),
-        set: v => Math.round(v)
+        get: v => {return Math.round(v)},
+        set: v => {return Math.round(v)},
     }, // -> type id of the Payload. 1 for Expense. Derived by PayloadService
 
     amount: {
@@ -49,23 +49,23 @@ const payloadSchema = new mongoose.Schema( {
     occurredAt: {
         type: Number,
         required: true,
-        get: v => Math.round(v),
-        set: v => Math.round(v)
+        get: v => {return Math.round(v)},
+        set: v => {return Math.round(v)},
     }, // -> milliseconds from 1-Jan-1970, added on PayloadService, when the Message is just received.
 
     storedAt: {
         type: Number,
         required: true,
-        get: v => Math.round(v),
-        set: v => Math.round(v),
-        default: Math.round(new Date().valueOf())
+        get: v => {return Math.round(v)},
+        set: v => {return Math.round(v)},
+        default: new Date().valueOf()
     }, // -> milliseconds from 1-Jan-1970, added on PayloadService, when saved to Payload collection.
 
     sourceId: {
         type: Number,
         required: true,
-        get: v => Math.round(v),
-        set: v => Math.round(v)
+        get: v => {return Math.round(v)},
+        set: v => {return Math.round(v)},
     }, // -> indicator of the Message source system, received from client in Message header
 
     campaignId: {
