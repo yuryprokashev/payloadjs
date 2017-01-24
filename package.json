@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "kafka-node": "^0.5.4",
-    "mongoose": "^4.5.8"
+    "mongoose": "^4.5.8",
+    "my-kafka": "file:../shared/myKafka"
   },
   "devDependencies": {
     "babel-core": "^6.14.0",
