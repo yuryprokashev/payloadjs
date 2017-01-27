@@ -78,24 +78,3 @@ kafkaBus.producer.on('ready', ()=> {
         }
     );
 });
-
-//
-// kafkaBus.producer.on('ready', ()=> {
-//     configService = configFactory(kafkaService);
-//     configService.on('ready', ()=>{
-//         dbConfig = configService.get(SERVICE_NAME).db;
-//
-//         dbConnectStr = buildMongoConStr(dbConfig);
-//         db = dbFactory(dbConnectStr);
-//         payloadService = payloadServiceFactory(db);
-//         payloadCtrl = payloadCtrlFactory(payloadService, kafkaService);
-//
-//         kafkaListeners = configService.get(SERVICE_NAME).kafkaListeners;
-//
-//         kafkaService.subscribe(kafkaListeners.createMessage, payloadCtrl.reactKafkaMessage);
-//         kafkaService.subscribe(kafkaListeners.getPayload, payloadCtrl.handleKafkaMessage);
-//         kafkaService.subscribe(kafkaListeners.copyPayload, payloadCtrl.handleKafkaMessage);
-//         kafkaService.subscribe(kafkaListeners.clearPayload, payloadCtrl.handleKafkaMessage);
-//         kafkaService.subscribe(kafkaListeners.aggMonthData, payloadCtrl.handleKafkaMessage);
-//     });
-// });
