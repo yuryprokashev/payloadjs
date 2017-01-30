@@ -51,7 +51,7 @@ kafkaBus.producer.on('ready', ()=> {
         (config) => {
             configService = configServiceFactory(config);
             configCtrl = configCtrlFactory(configService, kafkaService);
-            kafkaService.subscribe('get-config-response', configCtrl.writeConfig);
+            kafkaService.subscribe('get-config-response', true, configCtrl.writeConfig);
             kafkaService.send('get-config-request', configObject);
             configCtrl.on('ready', () => {
                 dbConfig = configService.read(SERVICE_NAME, 'db');
@@ -63,11 +63,11 @@ kafkaBus.producer.on('ready', ()=> {
 
                 kafkaListeners = configService.read(SERVICE_NAME, 'kafkaListeners');
 
-                kafkaService.subscribe(kafkaListeners.createMessage, payloadCtrl.reactKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.getPayload, payloadCtrl.handleKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.copyPayload, payloadCtrl.handleKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.clearPayload, payloadCtrl.handleKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.aggMonthData, payloadCtrl.handleKafkaMessage);
+                kafkaService.subscribe(kafkaListeners.createMessage, false, payloadCtrl.reactKafkaMessage);
+                kafkaService.subscribe(kafkaListeners.getPayload, false, payloadCtrl.handleKafkaMessage);
+                kafkaService.subscribe(kafkaListeners.copyPayload, false, payloadCtrl.handleKafkaMessage);
+                kafkaService.subscribe(kafkaListeners.clearPayload, false, payloadCtrl.handleKafkaMessage);
+                kafkaService.subscribe(kafkaListeners.aggMonthData, false, payloadCtrl.handleKafkaMessage);
             });
             configCtrl.on('error', (args) => {
                 console.log(args);
