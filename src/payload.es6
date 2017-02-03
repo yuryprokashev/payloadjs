@@ -54,6 +54,7 @@ bootstrapComponents = () => {
         db = dbFactory(dbConnectStr);
 
         payloadService = payloadCtrlFactory(db);
+        console.log(`before payloadCtrlFactory call ${JSON.stringify(configService)}`);
         payloadCtrl = payloadCtrlFactory(payloadService, configService, kafkaService);
 
     });
