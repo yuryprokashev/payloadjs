@@ -48,7 +48,7 @@ bootstrapComponents = () => {
     configService = configServiceFactory(configObject);
     configCtrl = configCtrlFactory(configService, kafkaService);
 
-    configCtrl.on('ready',() => {
+    configCtrl.on('ready', () => {
         dbConfig = configService.read(`${SERVICE_NAME}.db`);
         dbConnectStr = buildMongoConStr(dbConfig);
         db = dbFactory(dbConnectStr);
