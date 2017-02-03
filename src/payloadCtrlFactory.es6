@@ -3,6 +3,7 @@
  */
 'use strict';
 const guid = require('./helpers/guid.es6');
+
 module.exports = (payloadService, configService, kafkaService) => {
 
     let payloadCtrl = {};
@@ -23,9 +24,9 @@ module.exports = (payloadService, configService, kafkaService) => {
             writeData = JSON.parse(kafkaMessage.value).response;
             if(writeData === undefined || writeData === null) {
                 let context;
-                context = extractContext(kafkaMessage);
+                context = kafkaService.extractContext(kafkaMessage);
                 context.response = {error: 'response in kafkaMessage is empty'};
-                kafkaService.send(makeResponseTopic(kafkaMessage), context);
+                kafkaService.send(kafkaService.makeResponseTopic(kafkaMessage), context);
             }
             else {
                 let payload = JSON.parse(writeData.payload);
@@ -77,9 +78,9 @@ module.exports = (payloadService, configService, kafkaService) => {
 
     reply = (data, kafkaMessage) => {
         let context;
-        context = extractContext(kafkaMessage);
+        context = kafkaService.extractContext(kafkaMessage);
         context.response = data;
-        kafkaService.send(makeResponseTopic(kafkaMessage), false, context);
+        kafkaService.send(kafkaService.makeResponseTopic(kafkaMessage), false, context);
     };
 
     handleKafkaMessage = kafkaMessage => {
@@ -136,15 +137,16 @@ module.exports = (payloadService, configService, kafkaService) => {
 
         )
     };
-
+    console.log(JSON.stringify(configService));
     kafkaListeners = configService.read('payloadjs.kafkaListeners');
     signRequest = false;
-
-    kafkaService.subscribe(kafkaListeners.createMessage, signRequest, reactKafkaMessage);
-    kafkaService.subscribe(kafkaListeners.getPayload, signRequest, handleKafkaMessage);
-    kafkaService.subscribe(kafkaListeners.copyPayload, signRequest, handleKafkaMessage);
-    kafkaService.subscribe(kafkaListeners.clearPayload, signRequest, handleKafkaMessage);
-    kafkaService.subscribe(kafkaListeners.aggMonthData, signRequest, handleKafkaMessage);
+    if(kafkaListeners !== undefined) {
+        kafkaService.subscribe(kafkaListeners.createMessage, signRequest, reactKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.getPayload, signRequest, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.copyPayload, signRequest, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.clearPayload, signRequest, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.aggMonthData, signRequest, handleKafkaMessage);
+    }
 
     return payloadCtrl;
 };

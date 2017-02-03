@@ -46,7 +46,6 @@ let bootstrapComponents,
 bootstrapComponents = () => {
     configObject = configObjectFactory(SERVICE_NAME);
     configService = configServiceFactory(configObject);
-    console.log(configService);
     configCtrl = configCtrlFactory(configService, kafkaService);
 
     configCtrl.on('ready',() => {
