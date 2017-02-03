@@ -38,8 +38,7 @@ let payloadCtrl,
     configCtrl;
 
 let dbConfig,
-    dbConnectStr,
-    kafkaListeners;
+    dbConnectStr;
 
 let bootstrapComponents,
     handleError;
@@ -47,6 +46,7 @@ let bootstrapComponents,
 bootstrapComponents = () => {
     configObject = configObjectFactory(SERVICE_NAME);
     configService = configServiceFactory(configObject);
+    console.log(configService);
     configCtrl = configCtrlFactory(configService, kafkaService);
 
     configCtrl.on('ready',() => {

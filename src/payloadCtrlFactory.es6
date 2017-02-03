@@ -137,7 +137,7 @@ module.exports = (payloadService, configService, kafkaService) => {
         )
     };
 
-    kafkaListeners = configService.read(`payloadjs.kafkaListeners`);
+    kafkaListeners = configService.read('payloadjs.kafkaListeners');
     signRequest = false;
 
     kafkaService.subscribe(kafkaListeners.createMessage, signRequest, reactKafkaMessage);
