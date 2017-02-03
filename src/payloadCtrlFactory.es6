@@ -2,56 +2,21 @@
  *Created by py on 08/12/2016
  */
 'use strict';
-module.exports = (payloadService, kafkaService) => {
+const guid = require('./helpers/guid.es6');
+module.exports = (payloadService, configService, kafkaService) => {
 
-    const guid = require('./helpers/guid.es6');
+    let payloadCtrl = {};
 
-    const extractContext = (kafkaMessage) => {
-        let context;
-        context = JSON.parse(kafkaMessage.value);
-        if(context === undefined) {
-            let newContext = {};
-            newContext.response = {error: 'arrived context is empty'};
-            kafkaService.send(makeResponseTopic(kafkaMessage), newContext);
-        }
-        return context;
-    };
+    let kafkaListeners,
+        signRequest;
 
-    const extractQuery = (kafkaMessage) => {
-        let query = JSON.parse(kafkaMessage.value).request.query;
-        if(query === undefined || query === null) {
-            let context;
-            context = extractContext(kafkaMessage);
-            context.response = {error: 'query is empty'};
-            kafkaService.send(makeResponseTopic(kafkaMessage), context);
-        }
-        else {
-            return query;
-        }
-    };
+    let handleKafkaMessage,
+        reactKafkaMessage,
+        reply,
+        extractMethod,
+        extractWriteDataFromResponse;
 
-    const extractWriteData = (kafkaMessage) => {
-        let writeData, method;
-        method = extractMethod(kafkaMessage);
-        if(method === 'createOrUpdate' || method === 'copy'){
-            writeData = JSON.parse(kafkaMessage.value).request.writeData;
-            if(writeData === undefined || writeData === null) {
-                let context;
-                context = extractContext(kafkaMessage);
-                context.response = {error: 'writeData is empty'};
-                kafkaService.send(makeResponseTopic(kafkaMessage), context);
-            }
-            else {
-                return writeData;
-            }
-        }
-        else {
-            return undefined;
-        }
-
-    };
-    
-    const extractWriteDataFromResponse = kafkaMessage => {
+    extractWriteDataFromResponse = kafkaMessage => {
         let writeData, method;
         method = extractMethod(kafkaMessage);
         if(method === 'createOrUpdate'){
@@ -89,17 +54,7 @@ module.exports = (payloadService, kafkaService) => {
         }
     };
 
-    const makeResponseTopic = (kafkaMessage) => {
-        if(/-request/.test(kafkaMessage.topic)){
-            return kafkaMessage.topic.replace(/-request/, '-response');
-        }
-        else if(/-response/.test(kafkaMessage.topic)) {
-            return `${kafkaMessage.topic}-processed`;
-        }
-
-    };
-
-    const extractMethod = kafkaMessage => {
+    extractMethod = kafkaMessage => {
         if(/(get)/.test(kafkaMessage.topic) === true) {
             return 'find';
         }
@@ -120,24 +75,22 @@ module.exports = (payloadService, kafkaService) => {
         }
     };
 
-    const reply = (data, kafkaMessage) => {
+    reply = (data, kafkaMessage) => {
         let context;
         context = extractContext(kafkaMessage);
         context.response = data;
-        kafkaService.send(makeResponseTopic(kafkaMessage), context);
+        kafkaService.send(makeResponseTopic(kafkaMessage), false, context);
     };
 
-    let payloadCtrl = {};
-
-    payloadCtrl.handleKafkaMessage = kafkaMessage => {
+    handleKafkaMessage = kafkaMessage => {
 
         let method, query, data;
         method = extractMethod(kafkaMessage);
         if(method === null) {
             console.log('shit! extractMethod does not work!')
         }
-        query = extractQuery(kafkaMessage);
-        data = extractWriteData(kafkaMessage);
+        query = kafkaService.extractQuery(kafkaMessage);
+        data = kafkaService.extractWriteData(kafkaMessage);
 
         // console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
 
@@ -157,7 +110,7 @@ module.exports = (payloadService, kafkaService) => {
         );
     };
 
-    payloadCtrl.reactKafkaMessage = kafkaMessage => {
+    reactKafkaMessage = kafkaMessage => {
         let method, query, data;
 
         method = extractMethod(kafkaMessage);
@@ -183,6 +136,15 @@ module.exports = (payloadService, kafkaService) => {
 
         )
     };
+
+    kafkaListeners = configService.read(`payloadjs.kafkaListeners`);
+    signRequest = false;
+
+    kafkaService.subscribe(kafkaListeners.createMessage, signRequest, reactKafkaMessage);
+    kafkaService.subscribe(kafkaListeners.getPayload, signRequest, handleKafkaMessage);
+    kafkaService.subscribe(kafkaListeners.copyPayload, signRequest, handleKafkaMessage);
+    kafkaService.subscribe(kafkaListeners.clearPayload, signRequest, handleKafkaMessage);
+    kafkaService.subscribe(kafkaListeners.aggMonthData, signRequest, handleKafkaMessage);
 
     return payloadCtrl;
 };

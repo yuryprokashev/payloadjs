@@ -41,40 +41,35 @@ let dbConfig,
     dbConnectStr,
     kafkaListeners;
 
+let bootstrapComponents,
+    handleError;
+
+bootstrapComponents = () => {
+    configObject = configObjectFactory(SERVICE_NAME);
+    configService = configServiceFactory(configObject);
+    configCtrl = configCtrlFactory(configService, kafkaService);
+
+    configCtrl.on('ready',() => {
+        dbConfig = configService.read(`${SERVICE_NAME}.db`);
+        dbConnectStr = buildMongoConStr(dbConfig);
+        db = dbFactory(dbConnectStr);
+
+        payloadService = payloadCtrlFactory(db);
+        payloadCtrl = payloadCtrlFactory(payloadService, configService, kafkaService);
+
+    });
+
+    configCtrl.on('error', (args) => {
+        handleError(args);
+    })
+};
+
+handleError = (err) => {
+    //TODO. Implement centralized error logging.
+    console.log(err);
+};
+
 kafkaBus = kafkaBusFactory(kafkaHost, SERVICE_NAME);
 kafkaService = kafkaServiceFactory(kafkaBus);
 
-kafkaBus.producer.on('ready', ()=> {
-
-    configObject = configObjectFactory(SERVICE_NAME);
-    configObject.init().then(
-        (config) => {
-            configService = configServiceFactory(config);
-            configCtrl = configCtrlFactory(configService, kafkaService);
-            kafkaService.subscribe('get-config-response', true, configCtrl.writeConfig);
-            kafkaService.send('get-config-request', true, configObject);
-            configCtrl.on('ready', () => {
-                dbConfig = configService.read(SERVICE_NAME, 'db');
-                dbConnectStr = buildMongoConStr(dbConfig);
-                db = dbFactory(dbConnectStr);
-
-                payloadService = payloadCtrlFactory(db);
-                payloadCtrl = payloadCtrlFactory(payloadService, kafkaService);
-
-                kafkaListeners = configService.read(SERVICE_NAME, 'kafkaListeners');
-
-                kafkaService.subscribe(kafkaListeners.createMessage, false, payloadCtrl.reactKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.getPayload, false, payloadCtrl.handleKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.copyPayload, false, payloadCtrl.handleKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.clearPayload, false, payloadCtrl.handleKafkaMessage);
-                kafkaService.subscribe(kafkaListeners.aggMonthData, false, payloadCtrl.handleKafkaMessage);
-            });
-            configCtrl.on('error', (args) => {
-                console.log(args);
-            });
-        },
-        (err) => {
-            console.log(`ConfigObject Promise rejected ${JSON.stringify(err.error)}`);
-        }
-    );
-});
+kafkaBus.producer.on('ready', bootstrapComponents);
