@@ -26,7 +26,7 @@ module.exports = (payloadService, configService, kafkaService) => {
                 let context;
                 context = kafkaService.extractContext(kafkaMessage);
                 context.response = {error: 'response in kafkaMessage is empty'};
-                kafkaService.send(kafkaService.makeResponseTopic(kafkaMessage), context);
+                kafkaService.send(kafkaService.makeResponseTopic(kafkaMessage), false, context);
             }
             else {
                 let payload = JSON.parse(writeData.payload);
@@ -92,6 +92,7 @@ module.exports = (payloadService, configService, kafkaService) => {
         }
         query = kafkaService.extractQuery(kafkaMessage);
         data = kafkaService.extractWriteData(kafkaMessage);
+
 
         // console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
 
