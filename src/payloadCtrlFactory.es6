@@ -9,7 +9,7 @@ module.exports = (payloadService, configService, kafkaService) => {
     let payloadCtrl = {};
 
     let kafkaListeners,
-        signRequest;
+        isSignedMessage;
 
     let handleKafkaMessage,
         reactKafkaMessage,
@@ -137,15 +137,15 @@ module.exports = (payloadService, configService, kafkaService) => {
 
         )
     };
-    console.log(JSON.stringify(configService));
+
     kafkaListeners = configService.read('payloadjs.kafkaListeners');
-    signRequest = false;
+    isSignedMessage = false;
     if(kafkaListeners !== undefined) {
-        kafkaService.subscribe(kafkaListeners.createMessage, signRequest, reactKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.getPayload, signRequest, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.copyPayload, signRequest, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.clearPayload, signRequest, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.aggMonthData, signRequest, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.createMessage, isSignedMessage, reactKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.getPayload, isSignedMessage, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.copyPayload, isSignedMessage, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.clearPayload, isSignedMessage, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.aggMonthData, isSignedMessage, handleKafkaMessage);
     }
 
     return payloadCtrl;
