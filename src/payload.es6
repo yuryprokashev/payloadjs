@@ -53,7 +53,7 @@ bootstrapComponents = () => {
         dbConnectStr = buildMongoConStr(dbConfig);
         db = dbFactory(dbConnectStr);
 
-        payloadService = payloadCtrlFactory(db);
+        payloadService = payloadServiceFactory(db);
         console.log(`before payloadCtrlFactory call ${JSON.stringify(configService)}`);
         payloadCtrl = payloadCtrlFactory(payloadService, configService, kafkaService);
 
