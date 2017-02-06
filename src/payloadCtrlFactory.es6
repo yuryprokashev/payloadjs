@@ -8,8 +8,7 @@ module.exports = (payloadService, configService, kafkaService) => {
 
     let payloadCtrl = {};
 
-    let kafkaListeners,
-        isSignedMessage;
+    let kafkaListeners;
 
     let handleKafkaMessage,
         reactKafkaMessage,
@@ -23,10 +22,7 @@ module.exports = (payloadService, configService, kafkaService) => {
         if(method === 'createOrUpdate'){
             writeData = JSON.parse(kafkaMessage.value).response;
             if(writeData === undefined || writeData === null) {
-                let context;
-                context = kafkaService.extractContext(kafkaMessage);
-                context.response = {error: 'response in kafkaMessage is empty'};
-                kafkaService.send(kafkaService.makeResponseTopic(kafkaMessage), false, context);
+                return {error: 'unable to extract writeData from kafkaMessage.response'};
             }
             else {
                 let payload = JSON.parse(writeData.payload);
@@ -51,7 +47,7 @@ module.exports = (payloadService, configService, kafkaService) => {
             }
         }
         else {
-            return undefined;
+            return {error: 'unknown method'};
         }
     };
 
@@ -72,29 +68,36 @@ module.exports = (payloadService, configService, kafkaService) => {
             return 'clear';
         }
         else {
-            return null;
+            return {error: 'unable to define method from topic'};
         }
     };
 
     reply = (data, kafkaMessage) => {
-        let context;
+        let context, topic;
         context = kafkaService.extractContext(kafkaMessage);
-        context.response = data;
-        kafkaService.send(kafkaService.makeResponseTopic(kafkaMessage), false, context);
+        if(context.error === undefined) {
+            context.response = data;
+            topic = kafkaService.makeResponseTopic(kafkaMessage);
+            kafkaService.send(topic, context);
+        }
+        else {
+            console.error(context.error);
+        }
+
     };
 
     handleKafkaMessage = kafkaMessage => {
 
         let method, query, data;
         method = extractMethod(kafkaMessage);
-        if(method === null) {
-            console.log('shit! extractMethod does not work!')
-        }
+        if(method.error !== undefined) {console.log(method.error)}
+
         query = kafkaService.extractQuery(kafkaMessage);
+        if(query.error !== undefined) {console.error(query.error)}
+
         data = kafkaService.extractWriteData(kafkaMessage);
+        if(data.error !== undefined) {console.error(data.error)}
 
-
-        // console.log(`method ${method} \n ${JSON.stringify(query)}, \n data: ${JSON.stringify(data)}, \n`);
 
         payloadService.handle(method, query, data).then(
             ((kafkaMessage) => {
@@ -140,13 +143,12 @@ module.exports = (payloadService, configService, kafkaService) => {
     };
 
     kafkaListeners = configService.read('payloadjs.kafkaListeners');
-    isSignedMessage = false;
     if(kafkaListeners !== undefined) {
-        kafkaService.subscribe(kafkaListeners.createMessage, isSignedMessage, reactKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.getPayload, isSignedMessage, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.copyPayload, isSignedMessage, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.clearPayload, isSignedMessage, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.aggMonthData, isSignedMessage, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.createMessage, reactKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.getPayload, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.copyPayload, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.clearPayload, handleKafkaMessage);
+        kafkaService.subscribe(kafkaListeners.aggMonthData, handleKafkaMessage);
     }
 
     return payloadCtrl;
