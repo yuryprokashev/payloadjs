@@ -4,9 +4,9 @@
 'use strict';
 const guid = require('./helpers/guid.es6');
 
-module.exports = (payloadService, configService, kafkaService) => {
+module.exports = (payloadService, configService, kafkaService, EventEmitter) => {
 
-    let payloadCtrl = {};
+    let payloadCtrl = new EventEmitter();
 
     let kafkaListeners;
 

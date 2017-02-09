@@ -3,7 +3,7 @@
  */
 
 'use strict';
-module.exports = db => {
+module.exports = (db, EventEmitter) => {
     let Payload = db.model("Payload", require('./payloadSchema.es6'), 'payloads');
     const guid = require('./helpers/guid.es6');
     const MonthData = require('./MonthData.es6');
@@ -149,7 +149,7 @@ module.exports = db => {
     methods.set('copy', copy);
     methods.set('clear', clear);
 
-    const payloadService = {};
+    const payloadService = new EventEmitter();
 
     payloadService.handle = (method, query, data) => {
         return methods.get(method)(query, data);

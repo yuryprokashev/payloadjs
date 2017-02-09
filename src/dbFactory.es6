@@ -4,7 +4,7 @@
 'use strict';
 const Mongoose = require('mongoose');
 
-module.exports = dbURL => {
+module.exports = (dbURL, EventEmitter) => {
     let connection = Mongoose.connect(dbURL);
     Mongoose.connection.on('connected',()=>{
         console.log('connected to db');
