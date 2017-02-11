@@ -141,15 +141,17 @@ module.exports = (payloadService, configService, kafkaService, EventEmitter) => 
 
         )
     };
-
-    kafkaListeners = configService.read('payloadjs.kafkaListeners');
-    if(kafkaListeners !== undefined) {
-        kafkaService.subscribe(kafkaListeners.createMessage, reactKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.getPayload, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.copyPayload, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.clearPayload, handleKafkaMessage);
-        kafkaService.subscribe(kafkaListeners.aggMonthData, handleKafkaMessage);
-    }
+    
+    payloadCtrl.start = () => {
+        kafkaListeners = configService.read('payloadjs.kafkaListeners');
+        if(kafkaListeners !== undefined) {
+            kafkaService.subscribe(kafkaListeners.createMessage, reactKafkaMessage);
+            kafkaService.subscribe(kafkaListeners.getPayload, handleKafkaMessage);
+            kafkaService.subscribe(kafkaListeners.copyPayload, handleKafkaMessage);
+            kafkaService.subscribe(kafkaListeners.clearPayload, handleKafkaMessage);
+            kafkaService.subscribe(kafkaListeners.aggMonthData, handleKafkaMessage);
+        }
+    };
 
     return payloadCtrl;
 };

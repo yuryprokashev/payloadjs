@@ -42,13 +42,13 @@ let payloadCtrl,
 let dbConfig,
     dbConnectStr;
 
-let bootstrapComponents,
-    handleError;
+let bootstrapComponents;
 
 bootstrapComponents = () => {
     configObject = configObjectFactory(SERVICE_NAME, EventEmitter);
     configService = configServiceFactory(configObject, EventEmitter);
     configCtrl = configCtrlFactory(configService, kafkaService, EventEmitter);
+    configCtrl.start();
 
     configCtrl.on('ready', () => {
         dbConfig = configService.read(`${SERVICE_NAME}.db`);
@@ -57,17 +57,9 @@ bootstrapComponents = () => {
 
         payloadService = payloadServiceFactory(db, EventEmitter);
         payloadCtrl = payloadCtrlFactory(payloadService, configService, kafkaService, EventEmitter);
+        payloadCtrl.start();
 
     });
-
-    configCtrl.on('error', (args) => {
-        handleError(args);
-    })
-};
-
-handleError = (err) => {
-    //TODO. Implement centralized error logging.
-    console.log(err);
 };
 
 kafkaBus = kafkaBusFactory(kafkaHost, SERVICE_NAME, EventEmitter);
